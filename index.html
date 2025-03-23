@@ -59,6 +59,7 @@
       .button-container {
         display: flex;
         gap: 10px;
+        flex-wrap: wrap;
       }
       button {
         background-color: #e74c3c;
@@ -77,6 +78,21 @@
       }
       #clearButton:hover {
         background-color: #636e72;
+      }
+      #exportButton {
+        background-color: #2ecc71;
+      }
+      #exportButton:hover {
+        background-color: #27ae60;
+      }
+      #importButton {
+        background-color: #3498db;
+      }
+      #importButton:hover {
+        background-color: #2980b9;
+      }
+      #importFile {
+        display: none;
       }
       #stored-results {
         padding: 15px;
@@ -224,6 +240,22 @@
       <button id="clearButton" onclick="clearStoredResults()">
         Clear Stored Results
       </button>
+      <button id="exportButton" onclick="exportStoredResults()">
+        Export Results
+      </button>
+      <button
+        id="importButton"
+        onclick="document.getElementById('importFile').click()"
+      >
+        Import Results
+      </button>
+      <input
+        type="file"
+        id="importFile"
+        accept=".json"
+        onchange="importStoredResults(event)"
+        style="display: none"
+      />
     </div>
 
     <!-- Stored Results Display -->
@@ -332,8 +364,6 @@
 
         // Remove the old result
         removeStoredResult(id);
-
-        // User can now edit the values and click Calculate to update
       }
 
       function removeStoredResult(id) {
@@ -348,6 +378,55 @@
       function clearStoredResults() {
         const storedResultsDiv = document.getElementById("stored-results");
         storedResultsDiv.innerHTML = "<h2>Stored Results</h2>";
+      }
+
+      function exportStoredResults() {
+        const results = Array.from(
+          document.querySelectorAll(".sample-result")
+        ).map((div) => {
+          return {
+            id: div.dataset.id,
+            inputs: JSON.parse(div.dataset.inputs),
+            permeances: calculatePermeancesFromInputs(
+              JSON.parse(div.dataset.inputs)
+            ),
+          };
+        });
+        const dataStr = JSON.stringify(results, null, 2);
+        const blob = new Blob([dataStr], { type: "application/json" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = "stored_results.json";
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+      }
+
+      function importStoredResults(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = function (e) {
+          try {
+            const results = JSON.parse(e.target.result);
+            results.forEach((result) => {
+              appendStoredResult(
+                result.inputs,
+                result.permeances,
+                resultCounter++
+              );
+            });
+          } catch (error) {
+            alert("Error importing file: Invalid JSON format");
+            console.error(error);
+          }
+        };
+        reader.readAsText(file);
+        // Reset the file input to allow re-importing the same file
+        document.getElementById("importFile").value = "";
       }
     </script>
   </body>
