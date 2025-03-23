@@ -111,6 +111,27 @@
         margin: 5px 0;
         font-size: 12px;
       }
+      .sample-result .action-buttons {
+        display: flex;
+        gap: 5px;
+        margin-top: 10px;
+      }
+      .sample-result button {
+        padding: 5px 10px;
+        font-size: 12px;
+      }
+      .sample-result .edit-button {
+        background-color: #f1c40f;
+      }
+      .sample-result .edit-button:hover {
+        background-color: #d4ac0d;
+      }
+      .sample-result .remove-button {
+        background-color: #e74c3c;
+      }
+      .sample-result .remove-button:hover {
+        background-color: #c0392b;
+      }
     </style>
   </head>
   <body>
@@ -215,33 +236,60 @@
       const gases = ["H2", "He", "O2", "N2", "CH4", "CO2"];
       // Conversion factor from bar to cmHg
       const BAR_TO_CMHG = 75.006156130264; // 1 bar ≈ 75.006 cmHg
+      let resultCounter = 0; // Unique ID for each result
 
       function calculatePermeances() {
-        // Get global inputs
-        const sampleName =
-          document.getElementById("sampleName").value || "Unnamed Sample";
-        const A = parseFloat(document.getElementById("area").value); // Membrane area in cm²
-        const p_bar = parseFloat(document.getElementById("pressure").value); // Pressure in bar
-        const p_cmHg = p_bar * BAR_TO_CMHG; // Convert pressure to cmHg
+        const inputs = getInputValues();
+        const permeances = calculatePermeancesFromInputs(inputs);
+        appendStoredResult(inputs, permeances, resultCounter++);
+      }
 
-        // Object to store permeances
-        let permeances = {};
+      function getInputValues() {
+        return {
+          sampleName:
+            document.getElementById("sampleName").value || "Unnamed Sample",
+          area: parseFloat(document.getElementById("area").value),
+          pressure: parseFloat(document.getElementById("pressure").value),
+          gases: gases.reduce((acc, gas) => {
+            acc[gas] = {
+              volume: parseFloat(
+                document.getElementById(`volume_${gas}`).value
+              ),
+              time: parseFloat(document.getElementById(`time_${gas}`).value),
+            };
+            return acc;
+          }, {}),
+        };
+      }
 
-        // Calculate permeance for each gas
+      function calculatePermeancesFromInputs(inputs) {
+        const p_cmHg = inputs.pressure * BAR_TO_CMHG;
+        const permeances = {};
         for (const gas of gases) {
-          const V = parseFloat(document.getElementById(`volume_${gas}`).value); // Volume in cm³
-          const t = parseFloat(document.getElementById(`time_${gas}`).value); // Time in seconds
-
-          // Permeance calculation: P = (V / (A * t * p)) * 10^6 GPU
-          const P = (V / (A * t * p_cmHg)) * 1e6;
-          permeances[gas] = P;
+          const V = inputs.gases[gas].volume;
+          const t = inputs.gases[gas].time;
+          permeances[gas] = (V / (inputs.area * t * p_cmHg)) * 1e6;
         }
+        return permeances;
+      }
 
-        // Append to stored results
+      function appendStoredResult(inputs, permeances, id) {
         const storedResultsDiv = document.getElementById("stored-results");
+        const pairs = [
+          { num: "H2", den: "N2" },
+          { num: "O2", den: "N2" },
+          { num: "CO2", den: "CH4" },
+          { num: "CO2", den: "N2" },
+          { num: "H2", den: "CH4" },
+          { num: "H2", den: "CO2" },
+          { num: "N2", den: "CH4" },
+          { num: "He", den: "H2" },
+        ];
         const storedResultHtml = `
-                <div class="sample-result">
-                    <h3>${sampleName}</h3>
+                <div class="sample-result" data-id="${id}" data-inputs='${JSON.stringify(
+          inputs
+        )}'>
+                    <h3>${inputs.sampleName}</h3>
                     <h4>Permeances (GPU)</h4>
                     ${gases
                       .map(
@@ -249,16 +297,7 @@
                       )
                       .join("")}
                     <h4>Selectivities</h4>
-                    ${[
-                      { num: "H2", den: "N2" },
-                      { num: "O2", den: "N2" },
-                      { num: "CO2", den: "CH4" },
-                      { num: "CO2", den: "N2" },
-                      { num: "H2", den: "CH4" },
-                      { num: "H2", den: "CO2" },
-                      { num: "N2", den: "CH4" },
-                      { num: "He", den: "H2" },
-                    ]
+                    ${pairs
                       .map(
                         (pair) =>
                           `<p>${pair.num}/${pair.den}: ${(
@@ -266,9 +305,44 @@
                           ).toFixed(2)}</p>`
                       )
                       .join("")}
+                    <div class="action-buttons">
+                        <button class="edit-button" onclick="editStoredResult(${id})">Edit</button>
+                        <button class="remove-button" onclick="removeStoredResult(${id})">Remove</button>
+                    </div>
                 </div>
             `;
         storedResultsDiv.innerHTML += storedResultHtml;
+      }
+
+      function editStoredResult(id) {
+        const resultDiv = document.querySelector(
+          `.sample-result[data-id="${id}"]`
+        );
+        const inputs = JSON.parse(resultDiv.dataset.inputs);
+
+        // Populate input fields with stored values
+        document.getElementById("sampleName").value = inputs.sampleName;
+        document.getElementById("area").value = inputs.area;
+        document.getElementById("pressure").value = inputs.pressure;
+        for (const gas of gases) {
+          document.getElementById(`volume_${gas}`).value =
+            inputs.gases[gas].volume;
+          document.getElementById(`time_${gas}`).value = inputs.gases[gas].time;
+        }
+
+        // Remove the old result
+        removeStoredResult(id);
+
+        // User can now edit the values and click Calculate to update
+      }
+
+      function removeStoredResult(id) {
+        const resultDiv = document.querySelector(
+          `.sample-result[data-id="${id}"]`
+        );
+        if (resultDiv) {
+          resultDiv.remove();
+        }
       }
 
       function clearStoredResults() {
