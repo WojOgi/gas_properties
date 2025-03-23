@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Gas Permeance and Selectivity Calculator</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 20px;
+        background-color: #f5f5f5;
+        color: #333;
+      }
+      h1 {
+        color: #2c3e50;
+        text-align: center;
+      }
+      .section {
+        background-color: #fff;
+        border-radius: 8px;
+        padding: 15px;
+        margin-bottom: 20px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+      .global-inputs {
+        display: flex;
+        gap: 15px;
+        flex-wrap: wrap;
+      }
+      .gas-container {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 15px;
+      }
+      .gas-box {
+        border: 1px solid #3498db;
+        border-radius: 5px;
+        padding: 10px;
+        width: 150px;
+        background-color: #ecf0f1;
+      }
+      .gas-box h3 {
+        margin: 0 0 10px 0;
+        color: #2980b9;
+        font-size: 16px;
+      }
+      label {
+        display: block;
+        margin-bottom: 5px;
+        font-size: 14px;
+      }
+      input[type="number"],
+      input[type="text"] {
+        width: 100px;
+        padding: 3px;
+        border: 1px solid #bdc3c7;
+        border-radius: 3px;
+      }
+      .button-container {
+        display: flex;
+        gap: 10px;
+      }
+      button {
+        background-color: #e74c3c;
+        color: white;
+        border: none;
+        padding: 8px 15px;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 14px;
+      }
+      button:hover {
+        background-color: #c0392b;
+      }
+      #clearButton {
+        background-color: #7f8c8d;
+      }
+      #clearButton:hover {
+        background-color: #636e72;
+      }
+      #stored-results {
+        padding: 15px;
+        background-color: #e8f8f5;
+        border: 1px solid #16a085;
+      }
+      #stored-results h2 {
+        color: #16a085;
+        margin-top: 0;
+      }
+      .sample-result {
+        display: inline-block;
+        border: 1px solid #bdc3c7;
+        border-radius: 5px;
+        padding: 10px;
+        margin: 0 10px 10px 0;
+        background-color: #fff;
+        width: 220px;
+        vertical-align: top;
+      }
+      .sample-result h3 {
+        color: #2c3e50;
+        font-size: 16px;
+        margin: 0 0 10px 0;
+      }
+      .sample-result h4 {
+        color: #7f8c8d;
+        font-size: 14px;
+        margin: 10px 0 5px 0;
+      }
+      .sample-result p {
+        margin: 5px 0;
+        font-size: 12px;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Gas Permeance and Selectivity Calculator</h1>
+
+    <!-- Global Inputs -->
+    <div class="section global-inputs">
+      <label>Membrane Sample Name: <input type="text" id="sampleName" /></label>
+      <label
+        >Membrane Area (cm²):
+        <input type="number" id="area" step="0.01" min="0"
+      /></label>
+      <label
+        >Pressure (bar): <input type="number" id="pressure" step="0.01" min="0"
+      /></label>
+    </div>
+
+    <!-- Gas Inputs -->
+    <div class="section gas-container">
+      <div class="gas-box">
+        <h3>Hydrogen (H₂)</h3>
+        <label
+          >Volume (cm³):
+          <input type="number" id="volume_H2" step="0.01" min="0"
+        /></label>
+        <label
+          >Time (s): <input type="number" id="time_H2" step="0.01" min="0"
+        /></label>
+      </div>
+
+      <div class="gas-box">
+        <h3>Helium (He)</h3>
+        <label
+          >Volume (cm³):
+          <input type="number" id="volume_He" step="0.01" min="0"
+        /></label>
+        <label
+          >Time (s): <input type="number" id="time_He" step="0.01" min="0"
+        /></label>
+      </div>
+
+      <div class="gas-box">
+        <h3>Oxygen (O₂)</h3>
+        <label
+          >Volume (cm³):
+          <input type="number" id="volume_O2" step="0.01" min="0"
+        /></label>
+        <label
+          >Time (s): <input type="number" id="time_O2" step="0.01" min="0"
+        /></label>
+      </div>
+
+      <div class="gas-box">
+        <h3>Nitrogen (N₂)</h3>
+        <label
+          >Volume (cm³):
+          <input type="number" id="volume_N2" step="0.01" min="0"
+        /></label>
+        <label
+          >Time (s): <input type="number" id="time_N2" step="0.01" min="0"
+        /></label>
+      </div>
+
+      <div class="gas-box">
+        <h3>Methane (CH₄)</h3>
+        <label
+          >Volume (cm³):
+          <input type="number" id="volume_CH4" step="0.01" min="0"
+        /></label>
+        <label
+          >Time (s): <input type="number" id="time_CH4" step="0.01" min="0"
+        /></label>
+      </div>
+
+      <div class="gas-box">
+        <h3>Carbon Dioxide (CO₂)</h3>
+        <label
+          >Volume (cm³):
+          <input type="number" id="volume_CO2" step="0.01" min="0"
+        /></label>
+        <label
+          >Time (s): <input type="number" id="time_CO2" step="0.01" min="0"
+        /></label>
+      </div>
+    </div>
+
+    <!-- Buttons -->
+    <div class="section button-container">
+      <button onclick="calculatePermeances()">Calculate</button>
+      <button id="clearButton" onclick="clearStoredResults()">
+        Clear Stored Results
+      </button>
+    </div>
+
+    <!-- Stored Results Display -->
+    <div class="section" id="stored-results">
+      <h2>Stored Results</h2>
+    </div>
+
+    <script>
+      // Array of gases
+      const gases = ["H2", "He", "O2", "N2", "CH4", "CO2"];
+      // Conversion factor from bar to cmHg
+      const BAR_TO_CMHG = 75.006156130264; // 1 bar ≈ 75.006 cmHg
+
+      function calculatePermeances() {
+        // Get global inputs
+        const sampleName =
+          document.getElementById("sampleName").value || "Unnamed Sample";
+        const A = parseFloat(document.getElementById("area").value); // Membrane area in cm²
+        const p_bar = parseFloat(document.getElementById("pressure").value); // Pressure in bar
+        const p_cmHg = p_bar * BAR_TO_CMHG; // Convert pressure to cmHg
+
+        // Object to store permeances
+        let permeances = {};
+
+        // Calculate permeance for each gas
+        for (const gas of gases) {
+          const V = parseFloat(document.getElementById(`volume_${gas}`).value); // Volume in cm³
+          const t = parseFloat(document.getElementById(`time_${gas}`).value); // Time in seconds
+
+          // Permeance calculation: P = (V / (A * t * p)) * 10^6 GPU
+          const P = (V / (A * t * p_cmHg)) * 1e6;
+          permeances[gas] = P;
+        }
+
+        // Append to stored results
+        const storedResultsDiv = document.getElementById("stored-results");
+        const storedResultHtml = `
+                <div class="sample-result">
+                    <h3>${sampleName}</h3>
+                    <h4>Permeances (GPU)</h4>
+                    ${gases
+                      .map(
+                        (gas) => `<p>${gas}: ${permeances[gas].toFixed(2)}</p>`
+                      )
+                      .join("")}
+                    <h4>Selectivities</h4>
+                    ${[
+                      { num: "H2", den: "N2" },
+                      { num: "O2", den: "N2" },
+                      { num: "CO2", den: "CH4" },
+                      { num: "CO2", den: "N2" },
+                      { num: "H2", den: "CH4" },
+                      { num: "H2", den: "CO2" },
+                      { num: "N2", den: "CH4" },
+                      { num: "He", den: "H2" },
+                    ]
+                      .map(
+                        (pair) =>
+                          `<p>${pair.num}/${pair.den}: ${(
+                            permeances[pair.num] / permeances[pair.den]
+                          ).toFixed(2)}</p>`
+                      )
+                      .join("")}
+                </div>
+            `;
+        storedResultsDiv.innerHTML += storedResultHtml;
+      }
+
+      function clearStoredResults() {
+        const storedResultsDiv = document.getElementById("stored-results");
+        storedResultsDiv.innerHTML = "<h2>Stored Results</h2>";
+      }
+    </script>
+  </body>
+</html>
