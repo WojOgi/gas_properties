@@ -316,6 +316,7 @@
           { num: "H2", den: "CO2" },
           { num: "N2", den: "CH4" },
           { num: "He", den: "H2" },
+          { num: "H2", den: "O2" }, // Added H2/O2
         ];
         const storedResultHtml = `
                 <div class="sample-result" data-id="${id}" data-inputs='${JSON.stringify(
@@ -425,7 +426,7 @@
           }
         };
         reader.readAsText(file);
-        // Reset the file input to allow re-importing the same file
+        // Reset the file input
         document.getElementById("importFile").value = "";
       }
     </script>
