@@ -273,6 +273,12 @@
       function calculatePermeances() {
         const inputs = getInputValues();
         const permeances = calculatePermeancesFromInputs(inputs);
+        if (Object.values(permeances).some((p) => isNaN(p) || !isFinite(p))) {
+          alert(
+            "Invalid input values detected. Please ensure all fields are filled with valid numbers."
+          );
+          return;
+        }
         appendStoredResult(inputs, permeances, resultCounter++);
       }
 
@@ -280,14 +286,14 @@
         return {
           sampleName:
             document.getElementById("sampleName").value || "Unnamed Sample",
-          area: parseFloat(document.getElementById("area").value),
-          pressure: parseFloat(document.getElementById("pressure").value),
+          area: parseFloat(document.getElementById("area").value) || 0,
+          pressure: parseFloat(document.getElementById("pressure").value) || 0,
           gases: gases.reduce((acc, gas) => {
             acc[gas] = {
-              volume: parseFloat(
-                document.getElementById(`volume_${gas}`).value
-              ),
-              time: parseFloat(document.getElementById(`time_${gas}`).value),
+              volume:
+                parseFloat(document.getElementById(`volume_${gas}`).value) || 0,
+              time:
+                parseFloat(document.getElementById(`time_${gas}`).value) || 0,
             };
             return acc;
           }, {}),
@@ -300,7 +306,11 @@
         for (const gas of gases) {
           const V = inputs.gases[gas].volume;
           const t = inputs.gases[gas].time;
-          permeances[gas] = (V / (inputs.area * t * p_cmHg)) * 1e6;
+          // Handle division by zero or invalid values
+          permeances[gas] =
+            inputs.area !== 0 && t !== 0 && p_cmHg !== 0
+              ? (V / (inputs.area * t * p_cmHg)) * 1e6
+              : 0;
         }
         return permeances;
       }
@@ -316,7 +326,7 @@
           { num: "H2", den: "CO2" },
           { num: "N2", den: "CH4" },
           { num: "He", den: "H2" },
-          { num: "H2", den: "O2" }, // Added H2/O2
+          { num: "H2", den: "O2" },
         ];
         const storedResultHtml = `
                 <div class="sample-result" data-id="${id}" data-inputs='${JSON.stringify(
@@ -331,12 +341,15 @@
                       .join("")}
                     <h4>Selectivities</h4>
                     ${pairs
-                      .map(
-                        (pair) =>
-                          `<p>${pair.num}/${pair.den}: ${(
-                            permeances[pair.num] / permeances[pair.den]
-                          ).toFixed(2)}</p>`
-                      )
+                      .map((pair) => {
+                        const selectivity =
+                          permeances[pair.den] !== 0
+                            ? (
+                                permeances[pair.num] / permeances[pair.den]
+                              ).toFixed(2)
+                            : "N/A";
+                        return `<p>${pair.num}/${pair.den}: ${selectivity}</p>`;
+                      })
                       .join("")}
                     <div class="action-buttons">
                         <button class="edit-button" onclick="editStoredResult(${id})">Edit</button>
@@ -385,14 +398,20 @@
         const results = Array.from(
           document.querySelectorAll(".sample-result")
         ).map((div) => {
+          const inputs = JSON.parse(div.dataset.inputs);
+          const permeances = calculatePermeancesFromInputs(inputs);
           return {
             id: div.dataset.id,
-            inputs: JSON.parse(div.dataset.inputs),
-            permeances: calculatePermeancesFromInputs(
-              JSON.parse(div.dataset.inputs)
-            ),
+            inputs: inputs,
+            permeances: permeances,
           };
         });
+
+        if (results.length === 0) {
+          alert("No results to export.");
+          return;
+        }
+
         const dataStr = JSON.stringify(results, null, 2);
         const blob = new Blob([dataStr], { type: "application/json" });
         const url = URL.createObjectURL(blob);
@@ -413,7 +432,29 @@
         reader.onload = function (e) {
           try {
             const results = JSON.parse(e.target.result);
+            if (!Array.isArray(results)) {
+              throw new Error("File must contain an array of results.");
+            }
             results.forEach((result) => {
+              // Validate structure
+              if (!result.inputs || !result.permeances) {
+                throw new Error(
+                  "Imported result missing inputs or permeances."
+                );
+              }
+              // Ensure all required gas data exists
+              for (const gas of gases) {
+                if (
+                  !result.inputs.gases[gas] ||
+                  typeof result.inputs.gases[gas].volume !== "number" ||
+                  typeof result.inputs.gases[gas].time !== "number"
+                ) {
+                  throw new Error(`Missing or invalid gas data for ${gas}.`);
+                }
+                if (typeof result.permeances[gas] !== "number") {
+                  throw new Error(`Invalid permeance for ${gas}.`);
+                }
+              }
               appendStoredResult(
                 result.inputs,
                 result.permeances,
@@ -421,12 +462,11 @@
               );
             });
           } catch (error) {
-            alert("Error importing file: Invalid JSON format");
+            alert(`Error importing file: ${error.message}`);
             console.error(error);
           }
         };
         reader.readAsText(file);
-        // Reset the file input
         document.getElementById("importFile").value = "";
       }
     </script>
