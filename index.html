@@ -116,7 +116,12 @@
       .sample-result h3 {
         color: #2c3e50;
         font-size: 16px;
-        margin: 0 0 10px 0;
+        margin: 0 0 5px 0;
+      }
+      .sample-result .conditions {
+        font-size: 12px;
+        color: #7f8c8d;
+        margin-bottom: 10px;
       }
       .sample-result h4 {
         color: #7f8c8d;
@@ -306,7 +311,6 @@
         for (const gas of gases) {
           const V = inputs.gases[gas].volume;
           const t = inputs.gases[gas].time;
-          // Handle division by zero or invalid values
           permeances[gas] =
             inputs.area !== 0 && t !== 0 && p_cmHg !== 0
               ? (V / (inputs.area * t * p_cmHg)) * 1e6
@@ -333,6 +337,10 @@
           inputs
         )}'>
                     <h3>${inputs.sampleName}</h3>
+                    <div class="conditions">
+                        Area: ${inputs.area.toFixed(2)} cm²<br>
+                        Pressure: ${inputs.pressure.toFixed(2)} bar
+                    </div>
                     <h4>Permeances (GPU)</h4>
                     ${gases
                       .map(
@@ -436,13 +444,11 @@
               throw new Error("File must contain an array of results.");
             }
             results.forEach((result) => {
-              // Validate structure
               if (!result.inputs || !result.permeances) {
                 throw new Error(
                   "Imported result missing inputs or permeances."
                 );
               }
-              // Ensure all required gas data exists
               for (const gas of gases) {
                 if (
                   !result.inputs.gases[gas] ||
