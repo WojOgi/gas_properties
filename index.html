@@ -101,6 +101,13 @@
         opacity: 0.4;
         background-color: #dcdde1;
       }
+      canvas {
+        width: 100% !important;
+        height: 400px !important;
+        max-width: 800px;
+        margin: 0 auto;
+        display: block;
+      }
     </style>
   </head>
   <body>
@@ -112,7 +119,9 @@
         >Pressure (bar): <input type="number" id="pressure" step="0.01"
       /></label>
     </div>
+
     <div class="section gas-container" id="gas-inputs"></div>
+
     <div class="section button-container">
       <button onclick="calculatePermeances()">Calculate</button>
       <button id="clearButton" onclick="clearStoredResults()">Clear</button>
@@ -170,27 +179,76 @@
       const storedResults = [];
       let resultCounter = 0;
       let selectivityChart, permeanceChart;
+      const gasList = ["H2", "He", "O2", "N2", "CH4", "CO2"];
+
+      function createGasInputs() {
+        const container = document.getElementById("gas-inputs");
+        container.innerHTML = "";
+        gasList.forEach((gas) => {
+          const div = document.createElement("div");
+          div.className = "gas-box";
+          div.innerHTML = `
+            <h3>${gas}</h3>
+            <label>Volume (cm³): <input type="number" id="vol-${gas}" step="0.01"></label>
+            <label>Time (s): <input type="number" id="time-${gas}" step="0.01"></label>
+          `;
+          container.appendChild(div);
+        });
+      }
+
+      function calculatePermeances() {
+        const sampleName = document.getElementById("sampleName").value.trim();
+        const area = parseFloat(document.getElementById("area").value);
+        const pressure = parseFloat(document.getElementById("pressure").value);
+        if (!sampleName || isNaN(area) || isNaN(pressure)) {
+          alert("Please enter sample name, area, and pressure.");
+          return;
+        }
+        const gases = {};
+        gasList.forEach((gas) => {
+          const V =
+            parseFloat(document.getElementById(`vol-${gas}`).value) || 0;
+          const t =
+            parseFloat(document.getElementById(`time-${gas}`).value) || 0;
+          gases[gas] = { volume: V, time: t };
+        });
+
+        const inputs = { sampleName, area, pressure, gases };
+        const permeances = calculatePermeancesFromInputs(inputs);
+        appendStoredResult(inputs, permeances, resultCounter++);
+      }
 
       function appendStoredResult(inputs, permeances, id) {
         const container = document.getElementById("results-container");
         container.insertAdjacentHTML(
           "beforeend",
           `
-    <div class="sample-result" data-id="${id}" data-inputs='${JSON.stringify(
+          <div class="sample-result" data-id="${id}" data-inputs='${JSON.stringify(
             inputs
           )}'>
-      <h3>${inputs.sampleName}</h3>
-      <div>Area: ${inputs.area.toFixed(
-        2
-      )} cm²<br>Pressure: ${inputs.pressure.toFixed(2)} bar</div>
-      <h4>Permeances (GPU)</h4>
-      ${Object.keys(permeances)
-        .map((g) => `<p>${g}: ${permeances[g].toFixed(2)}</p>`)
-        .join("")}
-    </div>
-  `
+            <h3>${inputs.sampleName}</h3>
+            <div>Area: ${inputs.area.toFixed(
+              2
+            )} cm²<br>Pressure: ${inputs.pressure.toFixed(2)} bar</div>
+            <h4>Permeances (GPU)</h4>
+            ${Object.keys(permeances)
+              .map((g) => `<p>${g}: ${permeances[g].toFixed(2)}</p>`)
+              .join("")}
+          </div>
+        `
         );
         storedResults.push({ inputs, permeances });
+        updateSelectivityChart();
+        updatePermeanceChart();
+      }
+
+      function clearStoredResults() {
+        storedResults.length = 0;
+        document.getElementById("results-container").innerHTML = "";
+        document.getElementById("sampleName").value = "";
+        document.getElementById("area").value = "";
+        document.getElementById("pressure").value = "";
+        createGasInputs();
         updateSelectivityChart();
         updatePermeanceChart();
       }
@@ -223,12 +281,8 @@
           },
           options: {
             responsive: true,
-            scales: {
-              y: {
-                beginAtZero: true,
-                title: { display: true, text: "Selectivity" },
-              },
-            },
+            maintainAspectRatio: false,
+            scales: { y: { beginAtZero: true } },
           },
         });
       }
@@ -253,31 +307,29 @@
           },
           options: {
             responsive: true,
-            scales: {
-              y: {
-                beginAtZero: true,
-                title: { display: true, text: "Permeance (GPU)" },
-              },
-            },
+            maintainAspectRatio: false,
+            scales: { y: { beginAtZero: true } },
           },
         });
       }
 
-      function exportStoredResults() {
-        const results = Array.from(
-          document.querySelectorAll(".sample-result")
-        ).map((div) => {
-          const inputs = JSON.parse(div.dataset.inputs);
-          const permeances = calculatePermeancesFromInputs(inputs);
-          return { inputs, permeances };
-        });
-
-        if (results.length === 0) {
-          alert("No results to export.");
-          return;
+      function calculatePermeancesFromInputs(inputs) {
+        const BAR_TO_CMHG = 75.006156130264;
+        const p_cmHg = inputs.pressure * BAR_TO_CMHG;
+        const permeances = {};
+        for (const gas of Object.keys(inputs.gases)) {
+          const V = inputs.gases[gas].volume;
+          const t = inputs.gases[gas].time;
+          permeances[gas] =
+            inputs.area !== 0 && t !== 0 && p_cmHg !== 0
+              ? (V / (inputs.area * t * p_cmHg)) * 1e6
+              : 0;
         }
+        return permeances;
+      }
 
-        const blob = new Blob([JSON.stringify(results, null, 2)], {
+      function exportStoredResults() {
+        const blob = new Blob([JSON.stringify(storedResults, null, 2)], {
           type: "application/json",
         });
         const url = URL.createObjectURL(blob);
@@ -293,7 +345,6 @@
       function importStoredResults(event) {
         const file = event.target.files[0];
         if (!file) return;
-
         const reader = new FileReader();
         reader.onload = function (e) {
           try {
@@ -330,20 +381,7 @@
         },
       });
 
-      function calculatePermeancesFromInputs(inputs) {
-        const BAR_TO_CMHG = 75.006156130264;
-        const p_cmHg = inputs.pressure * BAR_TO_CMHG;
-        const permeances = {};
-        for (const gas of Object.keys(inputs.gases)) {
-          const V = inputs.gases[gas].volume;
-          const t = inputs.gases[gas].time;
-          permeances[gas] =
-            inputs.area !== 0 && t !== 0 && p_cmHg !== 0
-              ? (V / (inputs.area * t * p_cmHg)) * 1e6
-              : 0;
-        }
-        return permeances;
-      }
+      createGasInputs();
     </script>
   </body>
 </html>
