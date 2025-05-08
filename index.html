@@ -5,11 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Gas Permeance & Selectivity Calculator</title>
 
-    <!-- libraries -->
+    <!-- libs -->
     <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-    <!-- basic styling -->
+    <!-- styles -->
     <style>
       body {
         font-family: Arial, Helvetica, sans-serif;
@@ -87,9 +87,7 @@
       #calcBtn {
         background: #e74c3c;
       }
-      #cancelBtn {
-        background: #7f8c8d;
-      }
+      #cancelBtn,
       #clearButton {
         background: #7f8c8d;
       }
@@ -123,6 +121,10 @@
         justify-content: space-between;
         margin-top: 10px;
       }
+      select[multiple] {
+        min-width: 200px;
+        padding: 5px;
+      }
       canvas {
         width: 100% !important;
         height: 400px !important;
@@ -149,9 +151,7 @@
         width: 100%;
         border-collapse: collapse;
       }
-      .knudsen-table th,
       .knudsen-table td {
-        text-align: left;
         padding: 4px;
       }
       .knudsen-table td:last-child {
@@ -167,7 +167,7 @@
       <label>Sample&nbsp;Name <input id="sampleName" type="text" /></label>
       <label>Area (cm²) <input id="area" type="number" step="0.01" /></label>
       <label
-        >Pressure (bar) <input id="pressure" type="number" step="0.01"
+        >Pressure (bar)<input id="pressure" type="number" step="0.01"
       /></label>
     </div>
 
@@ -187,9 +187,20 @@
         id="importFile"
         type="file"
         accept=".json"
-        onchange="importStoredResults(event)"
         hidden
+        onchange="importStoredResults(event)"
       />
+    </div>
+
+    <!-- sample selector -->
+    <div class="section">
+      <h2>Samples to Plot (Ctrl/⌘-click for multiple)</h2>
+      <select
+        id="sampleSelector"
+        multiple
+        size="6"
+        onchange="selectionChanged()"
+      ></select>
     </div>
 
     <!-- permeance chart -->
@@ -272,15 +283,16 @@
       <div id="results-container"></div>
     </div>
 
-    <!-- main script -->
+    <!-- scripts -->
     <script>
       /* ------------------------------------------------------------------ */
       /* DATA & STATE                                                       */
       const gasList = ["H2", "He", "O2", "N2", "CH4", "CO2"];
       const storedResults = [];
-      let nextId = 0; // incremental primary key
-      let editId = null; // id of record being edited
-      let selectivityChart, permeanceChart;
+      let nextId = 0,
+        editId = null,
+        selectivityChart,
+        permeanceChart;
 
       /* ------------------------------------------------------------------ */
       /* UI BUILDERS                                                        */
@@ -293,8 +305,8 @@
             `
         <div class="gas-box">
           <h3>${g}</h3>
-          <label>Volume (cm³) <input id="vol-${g}"  type="number" step="0.01"></label>
-          <label>Time (s)    <input id="time-${g}" type="number" step="0.01"></label>
+          <label>Volume (cm³) <input id="vol-${g}" type="number" step="0.01"></label>
+          <label>Time (s)     <input id="time-${g}" type="number" step="0.01"></label>
         </div>`
           );
         });
@@ -306,8 +318,7 @@
           .join("");
         return `
       <div class="sample-result" data-id="${id}">
-        <h3>${inputs.sampleName}</h3>
-        ${txt}
+        <h3>${inputs.sampleName}</h3>${txt}
         <div class="result-buttons">
           <button class="edit-button"  onclick="beginEdit(${id})">Edit</button>
           <button class="delete-button" onclick="deleteResult(${id})">Delete</button>
@@ -315,8 +326,27 @@
       </div>`;
       }
 
+      function rebuildSampleSelector() {
+        const sel = document.getElementById("sampleSelector");
+        const previouslySel = [...sel.selectedOptions].map((o) => +o.value);
+        sel.innerHTML = "";
+        storedResults.forEach((r) => {
+          const opt = document.createElement("option");
+          opt.value = r.id;
+          opt.textContent = r.inputs.sampleName;
+          opt.selected = previouslySel.length
+            ? previouslySel.includes(r.id)
+            : true;
+          sel.appendChild(opt);
+          r.selected = opt.selected;
+        });
+        refreshCharts();
+      }
+
       /* ------------------------------------------------------------------ */
       /* CHART HELPERS                                                      */
+      const filteredResults = () => storedResults.filter((r) => r.selected);
+
       function refreshCharts() {
         updatePermeanceChart();
         updateSelectivityChart();
@@ -324,12 +354,12 @@
 
       function updatePermeanceChart() {
         const gas = document.getElementById("permeanceGas").value;
-        const labels = storedResults.map((r) => r.inputs.sampleName);
-        const data = storedResults.map((r) => +r.permeances[gas].toFixed(2));
-
+        const labels = filteredResults().map((r) => r.inputs.sampleName);
+        const data = filteredResults().map(
+          (r) => +r.permeances[gas].toFixed(2)
+        );
         if (permeanceChart) permeanceChart.destroy();
-        const ctx = document.getElementById("permeanceChart").getContext("2d");
-        permeanceChart = new Chart(ctx, {
+        permeanceChart = new Chart(document.getElementById("permeanceChart"), {
           type: "bar",
           data: {
             labels,
@@ -353,42 +383,41 @@
         const [num, den] = document
           .getElementById("selectivityType")
           .value.split("/");
-        const labels = storedResults.map((r) => r.inputs.sampleName);
-        const data = storedResults.map((r) => {
+        const labels = filteredResults().map((r) => r.inputs.sampleName);
+        const data = filteredResults().map((r) => {
           const d = r.permeances[den];
           return d ? +(r.permeances[num] / d).toFixed(2) : 0;
         });
-
         if (selectivityChart) selectivityChart.destroy();
-        const ctx = document
-          .getElementById("selectivityChart")
-          .getContext("2d");
-        selectivityChart = new Chart(ctx, {
-          type: "bar",
-          data: {
-            labels,
-            datasets: [
-              {
-                label: `${num}/${den} Selectivity`,
-                data,
-                backgroundColor: "#3498db",
-              },
-            ],
-          },
-          options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            scales: { y: { beginAtZero: true } },
-          },
-        });
+        selectivityChart = new Chart(
+          document.getElementById("selectivityChart"),
+          {
+            type: "bar",
+            data: {
+              labels,
+              datasets: [
+                {
+                  label: `${num}/${den} Selectivity`,
+                  data,
+                  backgroundColor: "#3498db",
+                },
+              ],
+            },
+            options: {
+              responsive: true,
+              maintainAspectRatio: false,
+              scales: { y: { beginAtZero: true } },
+            },
+          }
+        );
       }
 
       /* ------------------------------------------------------------------ */
       /* CALCULATION                                                        */
       const BAR_TO_CMHG = 75.006156130264;
       function calcPermeances({ area, pressure, gases }) {
-        const p = pressure * BAR_TO_CMHG;
-        const out = {};
+        const p = pressure * BAR_TO_CMHG,
+          out = {};
         for (const g of gasList) {
           const { volume: V, time: t } = gases[g];
           out[g] = area && t && p ? (V / (area * t * p)) * 1e6 : 0;
@@ -423,14 +452,17 @@
         const permeances = calcPermeances(inputs);
 
         if (editId === null) {
-          /* ---- new record ---- */
-          storedResults.push({ id: nextId, inputs, permeances });
+          storedResults.push({
+            id: nextId,
+            inputs,
+            permeances,
+            selected: true,
+          });
           document
             .getElementById("results-container")
             .insertAdjacentHTML("beforeend", renderCard(storedResults.at(-1)));
           nextId++;
         } else {
-          /* ---- update ---- */
           const rec = storedResults.find((r) => r.id === editId);
           Object.assign(rec, { inputs, permeances });
           document.querySelector(
@@ -438,7 +470,7 @@
           ).outerHTML = renderCard(rec);
           exitEditMode();
         }
-        refreshCharts();
+        rebuildSampleSelector();
         clearInputBoxes();
       }
 
@@ -446,7 +478,6 @@
         const rec = storedResults.find((r) => r.id === id);
         if (!rec) return;
         editId = id;
-
         document.getElementById("sampleName").value = rec.inputs.sampleName;
         document.getElementById("area").value = rec.inputs.area;
         document.getElementById("pressure").value = rec.inputs.pressure;
@@ -455,7 +486,6 @@
             rec.inputs.gases[g].volume;
           document.getElementById(`time-${g}`).value = rec.inputs.gases[g].time;
         });
-
         document.getElementById("calcBtn").textContent = "Save";
         document.getElementById("calcBtn").style.background = "#27ae60";
         document.getElementById("cancelBtn").style.display = "";
@@ -493,7 +523,7 @@
           exitEditMode();
           clearInputBoxes();
         }
-        refreshCharts();
+        rebuildSampleSelector();
       }
 
       function clearStoredResults() {
@@ -501,6 +531,18 @@
         document.getElementById("results-container").innerHTML = "";
         exitEditMode();
         clearInputBoxes();
+        rebuildSampleSelector();
+      }
+
+      /* ------------------------------------------------------------------ */
+      /* SELECTOR CHANGE                                                    */
+      function selectionChanged() {
+        const selIds = [
+          ...document.getElementById("sampleSelector").selectedOptions,
+        ].map((o) => +o.value);
+        storedResults.forEach((r) => {
+          r.selected = selIds.includes(r.id);
+        });
         refreshCharts();
       }
 
@@ -528,12 +570,13 @@
             const arr = JSON.parse(evt.target.result);
             arr.forEach((obj) => {
               obj.id = nextId++;
+              obj.selected = true;
               storedResults.push(obj);
               document
                 .getElementById("results-container")
                 .insertAdjacentHTML("beforeend", renderCard(obj));
             });
-            refreshCharts();
+            rebuildSampleSelector();
           } catch (err) {
             alert("Import error: " + err.message);
           }
@@ -543,7 +586,7 @@
       }
 
       /* ------------------------------------------------------------------ */
-      /* DRAG & DROP ORDER                                                  */
+      /* DRAG & DROP                                                        */
       new Sortable(document.getElementById("results-container"), {
         animation: 150,
         ghostClass: "sortable-ghost",
@@ -554,14 +597,14 @@
           storedResults.sort(
             (a, b) => order.indexOf(a.id) - order.indexOf(b.id)
           );
-          refreshCharts();
+          rebuildSampleSelector();
         },
       });
 
       /* ------------------------------------------------------------------ */
       /* INIT                                                               */
       createGasInputs();
-      refreshCharts();
+      rebuildSampleSelector(); // also draws empty charts
     </script>
   </body>
 </html>
