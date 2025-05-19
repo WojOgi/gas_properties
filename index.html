@@ -278,7 +278,7 @@
       <div class="chart-and-table">
         <canvas id="selectivityChart"></canvas>
 
-        <!-- Knudsen -->
+        <!-- Knudsen table -->
         <div class="tiny-table">
           <strong>Knudsen&nbsp;Selectivities</strong>
           <table>
@@ -321,7 +321,7 @@
           </table>
         </div>
 
-        <!-- PDMS -->
+        <!-- PDMS table -->
         <div class="tiny-table">
           <strong>PDMS&nbsp;Selectivities</strong>
           <table>
@@ -375,9 +375,9 @@
     <!-- scripts -->
     <script>
       /* ------------------------------------------------------------------ */
-      /* DATA & STATE                                                       */
+      /* CONSTANTS                                                          */
       const gasList = ["H2", "He", "O2", "N2", "CH4", "CO2"];
-      const gasDiameters = {
+      const gasDiam = {
         He: 2.6,
         H2: 2.89,
         CO2: 3.3,
@@ -386,8 +386,8 @@
         CH4: 3.8,
       };
       const gasOrder = ["He", "H2", "CO2", "O2", "N2", "CH4"];
-      const gasXVals = gasOrder.map((g) => gasDiameters[g]); // [2.6, 2.89, ...]
-      const colourCycle = [
+      const gasXVals = gasOrder.map((g) => gasDiam[g]);
+      const colours = [
         "#1f77b4",
         "#ff7f0e",
         "#2ca02c",
@@ -399,57 +399,58 @@
         "#bcbd22",
         "#17becf",
       ];
+      const BAR_TO_CMHG = 75.006156130264; // unit conversion
+
+      /* ------------------------------------------------------------------ */
+      /* STATE                                                              */
       const storedResults = [];
       let nextId = 0,
         editId = null;
       let kineticsChart, permeanceChart, selectivityChart;
 
       /* ------------------------------------------------------------------ */
-      /* PLUGINS                                                             */
+      /* CHART.JS PLUGINS                                                   */
       const barLabelPlugin = {
         id: "barLabel",
-        afterDatasetsDraw(ch, a, o) {
-          const { ctx } = ch,
-            labels = o.labels || [];
-          ch.data.datasets.forEach((ds, i) => {
-            ch.getDatasetMeta(i).data.forEach((el, idx) => {
-              const t = labels[idx] || "";
-              if (!t) return;
+        afterDatasetsDraw(chart, args, opt) {
+          const { ctx } = chart,
+            l = opt.labels || [];
+          chart.data.datasets.forEach((ds, i) => {
+            chart.getDatasetMeta(i).data.forEach((el, idx) => {
+              if (!l[idx]) return;
               ctx.save();
               ctx.font = "bold 16px Arial";
               ctx.textAlign = "center";
               ctx.textBaseline = "bottom";
               ctx.fillStyle = "#000";
-              ctx.fillText(t, el.x, el.y - 4);
+              ctx.fillText(l[idx], el.x, el.y - 4);
               ctx.restore();
             });
           });
         },
       };
-      const kineticsLabelPlugin = {
-        id: "kineticsLabel",
-        afterDatasetsDraw(ch, a, o) {
-          const { ctx } = ch,
-            labels = o.labels || [];
-          ch.data.datasets.forEach((ds, i) => {
-            const pts = ch.getDatasetMeta(i).data;
-            if (!pts.length) return;
-            const pLast = pts[pts.length - 1],
-              txt = labels[i] || "";
+      const lineLabelPlugin = {
+        id: "lineLabel",
+        afterDatasetsDraw(chart, args, opt) {
+          const { ctx } = chart,
+            l = opt.labels || [];
+          chart.data.datasets.forEach((ds, i) => {
+            const p = chart.getDatasetMeta(i).data.at(-1);
+            if (!p) return;
             ctx.save();
             ctx.font = "bold 14px Arial";
             ctx.textAlign = "left";
             ctx.textBaseline = "middle";
             ctx.fillStyle = ds.borderColor;
-            ctx.fillText(txt, pLast.x + 6, pLast.y);
+            ctx.fillText(l[i], p.x + 6, p.y);
             ctx.restore();
           });
         },
       };
-      Chart.register(barLabelPlugin, kineticsLabelPlugin);
+      Chart.register(barLabelPlugin, lineLabelPlugin);
 
       /* ------------------------------------------------------------------ */
-      /* UI BUILDERS & HELPERS                                              */
+      /* UI BUILDERS                                                        */
       function createGasInputs() {
         const c = document.getElementById("gas-inputs");
         c.innerHTML = "";
@@ -457,61 +458,60 @@
           c.insertAdjacentHTML(
             "beforeend",
             `
-      <div class="gas-box"><h3>${g}</h3>
-        <label>Volume&nbsp;(cm³)<input id="vol-${g}" type="number" step="0.01"></label>
-        <label>Time&nbsp;(s)<input id="time-${g}" type="number" step="0.01"></label>
-      </div>`
+          <div class="gas-box">
+            <h3>${g}</h3>
+            <label>Volume&nbsp;(cm³)<input id="vol-${g}" type="number" step="0.01"></label>
+            <label>Time&nbsp;(s)<input id="time-${g}" type="number" step="0.01"></label>
+          </div>`
           );
         });
       }
 
       function renderCard({ id, inputs, permeances }) {
-        const txt = Object.entries(permeances)
-          .map(([g, v]) => `<p>${g}: ${v.toFixed(2)}</p>`)
-          .join("");
         return `<div class="sample-result" data-id="${id}">
-        <h3>${inputs.sampleName}</h3><p><em>${inputs.sampleLabel}</em></p>${txt}
+        <h3>${inputs.sampleName}</h3>
+        <p><em>${inputs.sampleLabel}</em></p>
+        ${Object.entries(permeances)
+          .map(([g, v]) => `<p>${g}: ${v.toFixed(2)}</p>`)
+          .join("")}
         <div class="result-buttons">
-          <button class="edit-button" onclick="beginEdit(${id})">Edit</button>
+          <button class="edit-button"  onclick="beginEdit(${id})">Edit</button>
           <button class="delete-button" onclick="deleteResult(${id})">Delete</button>
         </div></div>`;
       }
 
-      function rebuildSampleSelector() {
+      function rebuildSelector() {
         const sel = document.getElementById("sampleSelector");
         const prev = [...sel.selectedOptions].map((o) => +o.value);
         sel.innerHTML = "";
         storedResults.forEach((r) => {
-          const o = document.createElement("option");
-          o.value = r.id;
-          o.textContent = r.inputs.sampleName;
-          o.selected = prev.length ? prev.includes(r.id) : true;
-          sel.appendChild(o);
-          r.selected = o.selected;
+          const opt = document.createElement("option");
+          opt.value = r.id;
+          opt.textContent = r.inputs.sampleName;
+          opt.selected = prev.length ? prev.includes(r.id) : true;
+          sel.appendChild(opt);
+          r.selected = opt.selected;
         });
         refreshCharts();
       }
 
       /* ------------------------------------------------------------------ */
       /* CHARTS                                                             */
-      const filtered = () => storedResults.filter((r) => r.selected);
-
+      function selected() {
+        return storedResults.filter((r) => r.selected);
+      }
       function refreshCharts() {
-        updateKineticsChart();
-        updatePermeanceChart();
-        updateSelectivityChart();
+        updateKinetics();
+        updatePermeance();
+        updateSelectivity();
       }
 
-      function updateKineticsChart() {
-        const res = filtered();
-        const datasets = res.map((r, i) => ({
+      function updateKinetics() {
+        const ds = selected().map((r, i) => ({
           label: r.inputs.sampleName,
-          data: gasOrder.map((g) => ({
-            x: gasDiameters[g],
-            y: r.permeances[g],
-          })),
-          borderColor: colourCycle[i % colourCycle.length],
-          backgroundColor: colourCycle[i % colourCycle.length],
+          data: gasOrder.map((g) => ({ x: gasDiam[g], y: r.permeances[g] })),
+          borderColor: colours[i % colours.length],
+          backgroundColor: colours[i % colours.length],
           showLine: true,
           fill: false,
           pointRadius: 4,
@@ -520,13 +520,15 @@
         if (kineticsChart) kineticsChart.destroy();
         kineticsChart = new Chart(document.getElementById("kineticsChart"), {
           type: "scatter",
-          data: { datasets },
+          data: { datasets: ds },
           options: {
             responsive: true,
             maintainAspectRatio: false,
             plugins: {
               legend: { position: "top" },
-              kineticsLabel: { labels: res.map((r) => r.inputs.sampleLabel) },
+              lineLabel: {
+                labels: selected().map((r) => r.inputs.sampleLabel),
+              },
             },
             scales: {
               x: {
@@ -536,7 +538,13 @@
                 title: { display: true, text: "Gas kinetic diameter [Å]" },
                 ticks: {
                   values: gasXVals,
-                  callback: (v) => gasOrder[gasXVals.indexOf(v)],
+                  autoSkip: false /* ALWAYS show these ticks */,
+                  callback: (v) => {
+                    const idx = gasXVals.findIndex(
+                      (x) => Math.abs(x - v) < 0.05
+                    );
+                    return idx > -1 ? gasOrder[idx] : "";
+                  },
                 },
                 grid: { drawTicks: false },
               },
@@ -550,25 +558,22 @@
         });
       }
 
-      function updatePermeanceChart() {
+      function updatePermeance() {
         const gas = document.getElementById("permeanceGas").value;
         const useLog = document.getElementById("permeanceLogToggle").checked;
-        const res = filtered();
-        const labels = res.map((r) => r.inputs.sampleName);
-        const barLabels = res.map((r) => r.inputs.sampleLabel);
-        const dataRaw = res.map((r) => +r.permeances[gas].toFixed(2));
-        const data = useLog
-          ? dataRaw.map((v) => (v > 0 ? v : 0.0001))
-          : dataRaw;
+        const labs = selected().map((r) => r.inputs.sampleName);
+        const vals = selected().map((r) => +r.permeances[gas].toFixed(2));
+        const show = useLog ? vals.map((v) => (v > 0 ? v : 0.0001)) : vals;
+
         if (permeanceChart) permeanceChart.destroy();
         permeanceChart = new Chart(document.getElementById("permeanceChart"), {
           type: "bar",
           data: {
-            labels,
+            labels: labs,
             datasets: [
               {
                 label: `${gas} Permeance (GPU)`,
-                data,
+                data: show,
                 backgroundColor: "#2ecc71",
               },
             ],
@@ -582,37 +587,36 @@
                 beginAtZero: !useLog,
               },
             },
-            plugins: { barLabel: { labels: barLabels } },
+            plugins: {
+              barLabel: { labels: selected().map((r) => r.inputs.sampleLabel) },
+            },
           },
         });
       }
 
-      function updateSelectivityChart() {
+      function updateSelectivity() {
         const [num, den] = document
           .getElementById("selectivityType")
           .value.split("/");
         const useLog = document.getElementById("selectivityLogToggle").checked;
-        const res = filtered();
-        const labels = res.map((r) => r.inputs.sampleName);
-        const barLabels = res.map((r) => r.inputs.sampleLabel);
-        const dataRaw = res.map((r) => {
+        const labs = selected().map((r) => r.inputs.sampleName);
+        const raw = selected().map((r) => {
           const d = r.permeances[den];
           return d ? +(r.permeances[num] / d).toFixed(2) : 0;
         });
-        const data = useLog
-          ? dataRaw.map((v) => (v > 0 ? v : 0.0001))
-          : dataRaw;
+        const show = useLog ? raw.map((v) => (v > 0 ? v : 0.0001)) : raw;
+
         if (selectivityChart) selectivityChart.destroy();
         selectivityChart = new Chart(
           document.getElementById("selectivityChart"),
           {
             type: "bar",
             data: {
-              labels,
+              labels: labs,
               datasets: [
                 {
                   label: `${num}/${den} Selectivity`,
-                  data,
+                  data: show,
                   backgroundColor: "#3498db",
                 },
               ],
@@ -626,7 +630,11 @@
                   beginAtZero: !useLog,
                 },
               },
-              plugins: { barLabel: { labels: barLabels } },
+              plugins: {
+                barLabel: {
+                  labels: selected().map((r) => r.inputs.sampleLabel),
+                },
+              },
             },
           }
         );
@@ -634,43 +642,44 @@
 
       /* ------------------------------------------------------------------ */
       /* CALCULATION                                                        */
-      const BAR_TO_CMHG = 75.006156130264;
       function calcPermeances({ area, pressure, gases }) {
         const p = pressure * BAR_TO_CMHG,
           out = {};
-        for (const g of gasList) {
+        gasList.forEach((g) => {
           const { volume: V, time: t } = gases[g];
           out[g] = area && t && p ? (V / (area * t * p)) * 1e6 : 0;
-        }
+        });
         return out;
       }
 
       /* ------------------------------------------------------------------ */
-      /* CRUD                                                                */
+      /* CRUD ACTIONS                                                       */
       function calculateOrSave() {
-        const sample = document.getElementById("sampleName").value.trim();
+        const name = document.getElementById("sampleName").value.trim();
         const label = document.getElementById("sampleLabel").value.trim();
         const area = parseFloat(document.getElementById("area").value);
         const press = parseFloat(document.getElementById("pressure").value);
-        if (!sample || !label || isNaN(area) || isNaN(press)) {
-          alert("Fill Sample Name, Sample Label, Area and Pressure!");
+        if (!name || !label || isNaN(area) || isNaN(press)) {
+          alert("Fill all required fields!");
           return;
         }
-        const gasData = {};
+
+        const gases = {};
         gasList.forEach((g) => {
-          gasData[g] = {
+          gases[g] = {
             volume: +document.getElementById(`vol-${g}`).value || 0,
             time: +document.getElementById(`time-${g}`).value || 0,
           };
         });
         const inputs = {
-          sampleName: sample,
+          sampleName: name,
           sampleLabel: label,
           area,
           pressure: press,
-          gases: gasData,
+          gases,
         };
         const permeances = calcPermeances(inputs);
+
         if (editId === null) {
           storedResults.push({
             id: nextId,
@@ -683,46 +692,45 @@
             .insertAdjacentHTML("beforeend", renderCard(storedResults.at(-1)));
           nextId++;
         } else {
-          const rec = storedResults.find((r) => r.id === editId);
-          Object.assign(rec, { inputs, permeances });
+          const r = storedResults.find((x) => x.id === editId);
+          Object.assign(r, { inputs, permeances });
           document.querySelector(
             `.sample-result[data-id='${editId}']`
-          ).outerHTML = renderCard(rec);
-          exitEditMode();
+          ).outerHTML = renderCard(r);
+          exitEdit();
         }
-        rebuildSampleSelector();
-        clearInputBoxes();
+        rebuildSelector();
+        clearInputs();
       }
 
       function beginEdit(id) {
-        const rec = storedResults.find((r) => r.id === id);
-        if (!rec) return;
+        const r = storedResults.find((x) => x.id === id);
+        if (!r) return;
         editId = id;
-        document.getElementById("sampleName").value = rec.inputs.sampleName;
-        document.getElementById("sampleLabel").value = rec.inputs.sampleLabel;
-        document.getElementById("area").value = rec.inputs.area;
-        document.getElementById("pressure").value = rec.inputs.pressure;
+        document.getElementById("sampleName").value = r.inputs.sampleName;
+        document.getElementById("sampleLabel").value = r.inputs.sampleLabel;
+        document.getElementById("area").value = r.inputs.area;
+        document.getElementById("pressure").value = r.inputs.pressure;
         gasList.forEach((g) => {
-          document.getElementById(`vol-${g}`).value =
-            rec.inputs.gases[g].volume;
-          document.getElementById(`time-${g}`).value = rec.inputs.gases[g].time;
+          document.getElementById(`vol-${g}`).value = r.inputs.gases[g].volume;
+          document.getElementById(`time-${g}`).value = r.inputs.gases[g].time;
         });
         document.getElementById("calcBtn").textContent = "Save";
         document.getElementById("calcBtn").style.background = "#27ae60";
         document.getElementById("cancelBtn").style.display = "";
       }
 
-      const exitEditMode = () => {
+      function exitEdit() {
         editId = null;
         document.getElementById("calcBtn").textContent = "Calculate";
         document.getElementById("calcBtn").style.background = "#e74c3c";
         document.getElementById("cancelBtn").style.display = "none";
-      };
-      const cancelEdit = () => {
-        exitEditMode();
-        clearInputBoxes();
-      };
-      function clearInputBoxes() {
+      }
+      function cancelEdit() {
+        exitEdit();
+        clearInputs();
+      }
+      function clearInputs() {
         document.getElementById("sampleName").value = "";
         document.getElementById("sampleLabel").value = "";
         document.getElementById("area").value = "";
@@ -740,21 +748,14 @@
           document.querySelector(`.sample-result[data-id='${id}']`)?.remove();
         }
         if (editId === id) {
-          exitEditMode();
-          clearInputBoxes();
+          exitEdit();
+          clearInputs();
         }
-        rebuildSampleSelector();
-      }
-      function clearStoredResults() {
-        storedResults.length = 0;
-        document.getElementById("results-container").innerHTML = "";
-        exitEditMode();
-        clearInputBoxes();
-        rebuildSampleSelector();
+        rebuildSelector();
       }
 
       /* ------------------------------------------------------------------ */
-      /* SELECTOR CHANGE                                                    */
+      /* SELECTION & ORDERING                                               */
       function selectionChanged() {
         const ids = [
           ...document.getElementById("sampleSelector").selectedOptions,
@@ -765,20 +766,35 @@
         refreshCharts();
       }
 
+      new Sortable(document.getElementById("results-container"), {
+        animation: 150,
+        ghostClass: "sortable-ghost",
+        onEnd: () => {
+          const order = [...document.querySelectorAll(".sample-result")].map(
+            (d) => +d.dataset.id
+          );
+          storedResults.sort(
+            (a, b) => order.indexOf(a.id) - order.indexOf(b.id)
+          );
+          rebuildSelector();
+        },
+      });
+
       /* ------------------------------------------------------------------ */
-      /* IMPORT / EXPORT                                                    */
+      /* IMPORT/EXPORT                                                      */
       function exportStoredResults() {
-        const b = new Blob([JSON.stringify(storedResults, null, 2)], {
+        const blob = new Blob([JSON.stringify(storedResults, null, 2)], {
           type: "application/json",
         });
         const a = document.createElement("a");
-        a.href = URL.createObjectURL(b);
+        a.href = URL.createObjectURL(blob);
         a.download = "stored_results.json";
         document.body.appendChild(a);
         a.click();
         a.remove();
         URL.revokeObjectURL(a.href);
       }
+
       function importStoredResults(e) {
         const f = e.target.files[0];
         if (!f) return;
@@ -794,7 +810,7 @@
                 .getElementById("results-container")
                 .insertAdjacentHTML("beforeend", renderCard(o));
             });
-            rebuildSampleSelector();
+            rebuildSelector();
           } catch (err) {
             alert("Import error: " + err.message);
           }
@@ -804,25 +820,9 @@
       }
 
       /* ------------------------------------------------------------------ */
-      /* DRAG & DROP                                                        */
-      new Sortable(document.getElementById("results-container"), {
-        animation: 150,
-        ghostClass: "sortable-ghost",
-        onEnd: () => {
-          const order = [...document.querySelectorAll(".sample-result")].map(
-            (d) => +d.dataset.id
-          );
-          storedResults.sort(
-            (a, b) => order.indexOf(a.id) - order.indexOf(b.id)
-          );
-          rebuildSampleSelector();
-        },
-      });
-
-      /* ------------------------------------------------------------------ */
       /* INIT                                                               */
       createGasInputs();
-      rebuildSampleSelector();
+      rebuildSelector();
     </script>
   </body>
 </html>
