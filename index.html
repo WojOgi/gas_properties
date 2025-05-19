@@ -17,151 +17,29 @@
         background: #f5f5f5;
         color: #333;
       }
-      h1,
-      h2 {
-        text-align: center;
-        color: #2c3e50;
-      }
-      .section {
-        background: #fff;
-        border-radius: 8px;
-        padding: 15px;
-        margin-bottom: 20px;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-      }
-      .global-inputs,
-      .button-container {
-        display: flex;
-        gap: 15px;
-        flex-wrap: wrap;
-        justify-content: center;
-      }
-      .gas-container {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 15px;
-        justify-content: center;
-      }
-      .gas-box {
-        border: 1px solid #3498db;
-        border-radius: 5px;
-        padding: 10px;
-        width: 150px;
-        background: #ecf0f1;
-      }
-      .gas-box h3 {
-        margin: 0 0 10px;
-        color: #2980b9;
-        font-size: 16px;
-      }
-      label {
-        display: block;
-        margin-bottom: 5px;
-        font-size: 14px;
-      }
-      input[type="number"],
-      input[type="text"] {
-        width: 100px;
-        padding: 3px;
-        border: 1px solid #bdc3c7;
-        border-radius: 3px;
-      }
-      button {
-        background: #e74c3c;
-        color: #fff;
-        border: none;
-        padding: 8px 15px;
-        border-radius: 5px;
-        cursor: pointer;
-        font-size: 14px;
-      }
-      button:hover {
-        background: #c0392b;
-      }
-      .edit-button {
-        background: #f39c12;
-      }
-      .delete-button {
-        background: #e74c3c;
-      }
-      #calcBtn {
-        background: #e74c3c;
-      }
-      #cancelBtn,
-      #clearButton {
-        background: #7f8c8d;
-      }
-      #exportButton {
-        background: #2ecc71;
-      }
-      #importButton {
-        background: #3498db;
-      }
-      #results-container {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 10px;
-        justify-content: center;
-      }
-      .sample-result {
-        border: 1px solid #bdc3c7;
-        border-radius: 5px;
-        padding: 10px;
-        background: #fff;
-        width: 220px;
-        cursor: grab;
-        position: relative;
-      }
-      .sortable-ghost {
-        opacity: 0.4;
-        background: #dcdde1;
-      }
-      .result-buttons {
-        display: flex;
-        justify-content: space-between;
-        margin-top: 10px;
-      }
-      select[multiple] {
-        min-width: 200px;
-        padding: 5px;
-      }
-      canvas {
-        width: 100% !important;
-        height: 400px !important;
-        max-width: 800px;
-        margin: 0 auto;
-        display: block;
-      }
-      .chart-and-table {
-        display: flex;
-        flex-wrap: wrap;
-        justify-content: space-around;
-        align-items: flex-start;
-        gap: 20px;
-      }
-      .tiny-table {
-        background: #fdfdfd;
-        border: 1px solid #ccc;
-        border-radius: 5px;
-        padding: 10px;
-        margin-top: 10px;
-        font-size: 14px;
-        max-width: 220px;
-      }
-      .tiny-table table {
-        width: 100%;
-        border-collapse: collapse;
-      }
-      .tiny-table td {
-        padding: 4px;
-      }
-      .tiny-table td:last-child {
-        text-align: right;
-      }
-      .toggle-box {
-        margin: 10px auto 0;
-        text-align: center;
-      }
+      h1,h2{text-align:center;color:#2c3e50}
+      .section{background:#fff;border-radius:8px;padding:15px;margin-bottom:20px;box-shadow:0 2px 4px rgba(0,0,0,0.1)}
+      .global-inputs,.button-container{display:flex;gap:15px;flex-wrap:wrap;justify-content:center}
+      .gas-container{display:flex;flex-wrap:wrap;gap:15px;justify-content:center}
+      .gas-box{border:1px solid #3498db;border-radius:5px;padding:10px;width:150px;background:#ecf0f1}
+      .gas-box h3{margin:0 0 10px;font-size:16px;color:#2980b9}
+      label{display:block;margin-bottom:5px;font-size:14px}
+      input[type="number"],input[type="text"]{width:100px;padding:3px;border:1px solid #bdc3c7;border-radius:3px}
+      button{background:#e74c3c;color:#fff;border:none;padding:8px 15px;border-radius:5px;cursor:pointer;font-size:14px}
+      button:hover{background:#c0392b}
+      .edit-button{background:#f39c12}.delete-button{background:#e74c3c}
+      #calcBtn{background:#e74c3c}#cancelBtn,#clearButton{background:#7f8c8d}
+      #exportButton{background:#2ecc71}#importButton{background:#3498db}
+      #results-container{display:flex;flex-wrap:wrap;gap:10px;justify-content:center}
+      .sample-result{border:1px solid #bdc3c7;border-radius:5px;padding:10px;background:#fff;width:220px;cursor:grab;position:relative}
+      .sortable-ghost{opacity:.4;background:#dcdde1}
+      .result-buttons{display:flex;justify-content:space-between;margin-top:10px}
+      select[multiple]{min-width:200px;padding:5px}
+      canvas{width:100%!important;height:400px!important;max-width:800px;margin:0 auto;display:block}
+      .chart-and-table{display:flex;flex-wrap:wrap;justify-content:space-around;align-items:flex-start;gap:20px}
+      .tiny-table{background:#fdfdfd;border:1px solid #ccc;border-radius:5px;padding:10px;margin-top:10px;font-size:14px;max-width:220px}
+      .tiny-table table{width:100%;border-collapse:collapse}.tiny-table td{padding:4px}.tiny-table td:last-child{text-align:right}
+      .toggle-box{margin:10px auto 0;text-align:center}
     </style>
   </head>
   <body>
@@ -170,10 +48,9 @@
     <!-- global inputs -->
     <div class="section global-inputs">
       <label>Sample&nbsp;Name <input id="sampleName" type="text" /></label>
-      <label>Area (cm²) <input id="area" type="number" step="0.01" /></label>
-      <label
-        >Pressure (bar)<input id="pressure" type="number" step="0.01"
-      /></label>
+      <label>Sample&nbsp;Label <input id="sampleLabel" type="text" /></label>
+      <label>Area&nbsp;(cm²) <input id="area" type="number" step="0.01" /></label>
+      <label>Pressure&nbsp;(bar) <input id="pressure" type="number" step="0.01" /></label>
     </div>
 
     <!-- gas flow inputs -->
@@ -182,52 +59,28 @@
     <!-- action buttons -->
     <div class="section button-container">
       <button id="calcBtn" onclick="calculateOrSave()">Calculate</button>
-      <button id="cancelBtn" onclick="cancelEdit()" style="display: none">
-        Cancel
-      </button>
+      <button id="cancelBtn" onclick="cancelEdit()" style="display:none">Cancel</button>
       <button id="clearButton" onclick="clearStoredResults()">Clear</button>
       <button id="exportButton" onclick="exportStoredResults()">Export</button>
       <button id="importButton" onclick="importFile.click()">Import</button>
-      <input
-        id="importFile"
-        type="file"
-        accept=".json"
-        hidden
-        onchange="importStoredResults(event)"
-      />
+      <input id="importFile" type="file" accept=".json" hidden onchange="importStoredResults(event)"/>
     </div>
 
     <!-- sample selector -->
     <div class="section">
       <h2>Samples to Plot (Ctrl/⌘-click for multiple)</h2>
-      <select
-        id="sampleSelector"
-        multiple
-        size="6"
-        onchange="selectionChanged()"
-      ></select>
+      <select id="sampleSelector" multiple size="6" onchange="selectionChanged()"></select>
     </div>
 
     <!-- permeance chart -->
     <div class="section">
       <h2>Permeance Comparison</h2>
       <select id="permeanceGas" onchange="updatePermeanceChart()">
-        <option>H2</option>
-        <option>He</option>
-        <option>O2</option>
-        <option>N2</option>
-        <option>CH4</option>
-        <option>CO2</option>
+        <option>H2</option><option>He</option><option>O2</option>
+        <option>N2</option><option>CH4</option><option>CO2</option>
       </select>
       <div class="toggle-box">
-        <label
-          ><input
-            type="checkbox"
-            id="permeanceLogToggle"
-            onchange="updatePermeanceChart()"
-          />
-          Log&nbsp;scale</label
-        >
+        <label><input type="checkbox" id="permeanceLogToggle" onchange="updatePermeanceChart()"> Log&nbsp;scale</label>
       </div>
       <canvas id="permeanceChart"></canvas>
     </div>
@@ -236,25 +89,12 @@
     <div class="section">
       <h2>Selectivity Comparison</h2>
       <select id="selectivityType" onchange="updateSelectivityChart()">
-        <option>H2/N2</option>
-        <option>O2/N2</option>
-        <option>CO2/CH4</option>
-        <option>CO2/N2</option>
-        <option>H2/CH4</option>
-        <option>H2/CO2</option>
-        <option>N2/CH4</option>
-        <option>He/H2</option>
-        <option>H2/O2</option>
+        <option>H2/N2</option><option>O2/N2</option><option>CO2/CH4</option>
+        <option>CO2/N2</option><option>H2/CH4</option><option>H2/CO2</option>
+        <option>N2/CH4</option><option>He/H2</option><option>H2/O2</option>
       </select>
       <div class="toggle-box">
-        <label
-          ><input
-            type="checkbox"
-            id="selectivityLogToggle"
-            onchange="updateSelectivityChart()"
-          />
-          Log&nbsp;scale</label
-        >
+        <label><input type="checkbox" id="selectivityLogToggle" onchange="updateSelectivityChart()"> Log&nbsp;scale</label>
       </div>
 
       <div class="chart-and-table">
@@ -264,42 +104,11 @@
         <div class="tiny-table">
           <strong>Knudsen&nbsp;Selectivities</strong>
           <table>
-            <tr>
-              <td>H₂/N₂</td>
-              <td>3.73</td>
-            </tr>
-            <tr>
-              <td>O₂/N₂</td>
-              <td>0.94</td>
-            </tr>
-            <tr>
-              <td>CO₂/CH₄</td>
-              <td>0.60</td>
-            </tr>
-            <tr>
-              <td>CO₂/N₂</td>
-              <td>0.80</td>
-            </tr>
-            <tr>
-              <td>H₂/CH₄</td>
-              <td>2.82</td>
-            </tr>
-            <tr>
-              <td>H₂/CO₂</td>
-              <td>4.67</td>
-            </tr>
-            <tr>
-              <td>N₂/CH₄</td>
-              <td>0.76</td>
-            </tr>
-            <tr>
-              <td>He/H₂</td>
-              <td>0.71</td>
-            </tr>
-            <tr>
-              <td>H₂/O₂</td>
-              <td>3.98</td>
-            </tr>
+            <tr><td>H₂/N₂</td><td>3.73</td></tr><tr><td>O₂/N₂</td><td>0.94</td></tr>
+            <tr><td>CO₂/CH₄</td><td>0.60</td></tr><tr><td>CO₂/N₂</td><td>0.80</td></tr>
+            <tr><td>H₂/CH₄</td><td>2.82</td></tr><tr><td>H₂/CO₂</td><td>4.67</td></tr>
+            <tr><td>N₂/CH₄</td><td>0.76</td></tr><tr><td>He/H₂</td><td>0.71</td></tr>
+            <tr><td>H₂/O₂</td><td>3.98</td></tr>
           </table>
         </div>
 
@@ -307,42 +116,11 @@
         <div class="tiny-table">
           <strong>PDMS&nbsp;Selectivities</strong>
           <table>
-            <tr>
-              <td>H₂/N₂</td>
-              <td>≈ 2.3</td>
-            </tr>
-            <tr>
-              <td>O₂/N₂</td>
-              <td>≈ 2.1</td>
-            </tr>
-            <tr>
-              <td>CO₂/CH₄</td>
-              <td>≈ 3.4</td>
-            </tr>
-            <tr>
-              <td>CO₂/N₂</td>
-              <td>≈ 11–12</td>
-            </tr>
-            <tr>
-              <td>H₂/CH₄</td>
-              <td>≈ 0.68</td>
-            </tr>
-            <tr>
-              <td>H₂/CO₂</td>
-              <td>≈ 0.20</td>
-            </tr>
-            <tr>
-              <td>N₂/CH₄</td>
-              <td>≈ 0.30</td>
-            </tr>
-            <tr>
-              <td>He/H₂</td>
-              <td>≈ 0.54</td>
-            </tr>
-            <tr>
-              <td>H₂/O₂</td>
-              <td>≈ 1.1</td>
-            </tr>
+            <tr><td>H₂/N₂</td><td>≈ 2.3</td></tr><tr><td>O₂/N₂</td><td>≈ 2.1</td></tr>
+            <tr><td>CO₂/CH₄</td><td>≈ 3.4</td></tr><tr><td>CO₂/N₂</td><td>≈ 11–12</td></tr>
+            <tr><td>H₂/CH₄</td><td>≈ 0.68</td></tr><tr><td>H₂/CO₂</td><td>≈ 0.20</td></tr>
+            <tr><td>N₂/CH₄</td><td>≈ 0.30</td></tr><tr><td>He/H₂</td><td>≈ 0.54</td></tr>
+            <tr><td>H₂/O₂</td><td>≈ 1.1</td></tr>
           </table>
         </div>
       </div>
@@ -358,336 +136,244 @@
     <script>
       /* ------------------------------------------------------------------ */
       /* DATA & STATE                                                       */
-      const gasList = ["H2", "He", "O2", "N2", "CH4", "CO2"];
+      const gasList = ["H2","He","O2","N2","CH4","CO2"];
       const storedResults = [];
-      let nextId = 0,
-        editId = null,
-        selectivityChart,
-        permeanceChart;
+      let nextId = 0, editId = null, selectivityChart, permeanceChart;
+
+      /* ------------------------------------------------------------------ */
+      /* BAR-LABEL PLUGIN (bold labels above bars)                          */
+      const barLabelPlugin = {
+        id: 'barLabel',
+        afterDatasetsDraw(chart, args, pluginOptions) {
+          const {ctx} = chart;
+          const labels = pluginOptions.labels || [];
+          chart.data.datasets.forEach((dataset, i) => {
+            const meta = chart.getDatasetMeta(i);
+            meta.data.forEach((bar, index) => {
+              const txt = labels[index] || '';
+              if (!txt) return;
+              ctx.save();
+              ctx.font = 'bold 16px Arial';
+              ctx.fillStyle = '#000';
+              ctx.textAlign = 'center';
+              ctx.textBaseline = 'bottom';
+              ctx.fillText(txt, bar.x, bar.y - 4);
+              ctx.restore();
+            });
+          });
+        }
+      };
+      Chart.register(barLabelPlugin);
 
       /* ------------------------------------------------------------------ */
       /* UI BUILDERS                                                        */
-      function createGasInputs() {
-        const cont = document.getElementById("gas-inputs");
-        cont.innerHTML = "";
-        gasList.forEach((g) => {
-          cont.insertAdjacentHTML(
-            "beforeend",
-            `
-        <div class="gas-box">
-          <h3>${g}</h3>
-          <label>Volume (cm³) <input id="vol-${g}" type="number" step="0.01"></label>
-          <label>Time (s)     <input id="time-${g}" type="number" step="0.01"></label>
-        </div>`
-          );
+      function createGasInputs(){
+        const cont=document.getElementById("gas-inputs");
+        cont.innerHTML='';
+        gasList.forEach(g=>{
+          cont.insertAdjacentHTML('beforeend',`
+            <div class="gas-box">
+              <h3>${g}</h3>
+              <label>Volume&nbsp;(cm³)<input id="vol-${g}" type="number" step="0.01"></label>
+              <label>Time&nbsp;(s)<input id="time-${g}" type="number" step="0.01"></label>
+            </div>`);
         });
       }
 
-      function renderCard({ id, inputs, permeances }) {
-        const txt = Object.entries(permeances)
-          .map(([g, v]) => `<p>${g}: ${v.toFixed(2)}</p>`)
-          .join("");
+      function renderCard({id,inputs,permeances}){
+        const txt=Object.entries(permeances).map(([g,v])=>`<p>${g}: ${v.toFixed(2)}</p>`).join('');
         return `
-      <div class="sample-result" data-id="${id}">
-        <h3>${inputs.sampleName}</h3>${txt}
-        <div class="result-buttons">
-          <button class="edit-button"  onclick="beginEdit(${id})">Edit</button>
-          <button class="delete-button" onclick="deleteResult(${id})">Delete</button>
-        </div>
-      </div>`;
+          <div class="sample-result" data-id="${id}">
+            <h3>${inputs.sampleName}</h3>
+            <p><em>${inputs.sampleLabel}</em></p>
+            ${txt}
+            <div class="result-buttons">
+              <button class="edit-button" onclick="beginEdit(${id})">Edit</button>
+              <button class="delete-button" onclick="deleteResult(${id})">Delete</button>
+            </div>
+          </div>`;
       }
 
-      function rebuildSampleSelector() {
-        const sel = document.getElementById("sampleSelector");
-        const previouslySel = [...sel.selectedOptions].map((o) => +o.value);
-        sel.innerHTML = "";
-        storedResults.forEach((r) => {
-          const opt = document.createElement("option");
-          opt.value = r.id;
-          opt.textContent = r.inputs.sampleName;
-          opt.selected = previouslySel.length
-            ? previouslySel.includes(r.id)
-            : true;
+      function rebuildSampleSelector(){
+        const sel=document.getElementById("sampleSelector");
+        const previouslySel=[...sel.selectedOptions].map(o=>+o.value);
+        sel.innerHTML='';
+        storedResults.forEach(r=>{
+          const opt=document.createElement("option");
+          opt.value=r.id; opt.textContent=r.inputs.sampleName;
+          opt.selected=previouslySel.length?previouslySel.includes(r.id):true;
           sel.appendChild(opt);
-          r.selected = opt.selected;
+          r.selected=opt.selected;
         });
         refreshCharts();
       }
 
       /* ------------------------------------------------------------------ */
       /* CHART HELPERS                                                      */
-      const filteredResults = () => storedResults.filter((r) => r.selected);
+      const filteredResults=()=>storedResults.filter(r=>r.selected);
 
-      function refreshCharts() {
-        updatePermeanceChart();
-        updateSelectivityChart();
-      }
+      function refreshCharts(){updatePermeanceChart();updateSelectivityChart();}
 
-      function updatePermeanceChart() {
-        const gas = document.getElementById("permeanceGas").value;
-        const useLog = document.getElementById("permeanceLogToggle").checked;
-        const labels = filteredResults().map((r) => r.inputs.sampleName);
-        const dataRaw = filteredResults().map(
-          (r) => +r.permeances[gas].toFixed(2)
-        );
-        const data = useLog
-          ? dataRaw.map((v) => (v > 0 ? v : 0.0001))
-          : dataRaw;
+      function updatePermeanceChart(){
+        const gas=document.getElementById("permeanceGas").value;
+        const useLog=document.getElementById("permeanceLogToggle").checked;
+        const res=filteredResults();
+        const labels=res.map(r=>r.inputs.sampleName);
+        const barLabels=res.map(r=>r.inputs.sampleLabel||'');
+        const dataRaw=res.map(r=>+r.permeances[gas].toFixed(2));
+        const data=useLog?dataRaw.map(v=>v>0?v:0.0001):dataRaw;
 
-        if (permeanceChart) permeanceChart.destroy();
-        permeanceChart = new Chart(document.getElementById("permeanceChart"), {
-          type: "bar",
-          data: {
-            labels,
-            datasets: [
-              {
-                label: `${gas} Permeance (GPU)`,
-                data,
-                backgroundColor: "#2ecc71",
-              },
-            ],
-          },
-          options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            scales: {
-              y: {
-                type: useLog ? "logarithmic" : "linear",
-                beginAtZero: !useLog,
-              },
-            },
-          },
-        });
-      }
-
-      function updateSelectivityChart() {
-        const [num, den] = document
-          .getElementById("selectivityType")
-          .value.split("/");
-        const useLog = document.getElementById("selectivityLogToggle").checked;
-        const labels = filteredResults().map((r) => r.inputs.sampleName);
-        const dataRaw = filteredResults().map((r) => {
-          const d = r.permeances[den];
-          return d ? +(r.permeances[num] / d).toFixed(2) : 0;
-        });
-        const data = useLog
-          ? dataRaw.map((v) => (v > 0 ? v : 0.0001))
-          : dataRaw;
-
-        if (selectivityChart) selectivityChart.destroy();
-        selectivityChart = new Chart(
-          document.getElementById("selectivityChart"),
-          {
-            type: "bar",
-            data: {
-              labels,
-              datasets: [
-                {
-                  label: `${num}/${den} Selectivity`,
-                  data,
-                  backgroundColor: "#3498db",
-                },
-              ],
-            },
-            options: {
-              responsive: true,
-              maintainAspectRatio: false,
-              scales: {
-                y: {
-                  type: useLog ? "logarithmic" : "linear",
-                  beginAtZero: !useLog,
-                },
-              },
-            },
+        if(permeanceChart)permeanceChart.destroy();
+        permeanceChart=new Chart(document.getElementById("permeanceChart"),{
+          type:'bar',
+          data:{labels,datasets:[{label:`${gas} Permeance (GPU)`,data,backgroundColor:"#2ecc71"}]},
+          options:{
+            responsive:true,maintainAspectRatio:false,
+            scales:{y:{type:useLog?'logarithmic':'linear',beginAtZero:!useLog}},
+            plugins:{barLabel:{labels:barLabels}}
           }
-        );
+        });
+      }
+
+      function updateSelectivityChart(){
+        const [num,den]=document.getElementById("selectivityType").value.split("/");
+        const useLog=document.getElementById("selectivityLogToggle").checked;
+        const res=filteredResults();
+        const labels=res.map(r=>r.inputs.sampleName);
+        const barLabels=res.map(r=>r.inputs.sampleLabel||'');
+        const dataRaw=res.map(r=>{
+          const d=r.permeances[den]; return d?+(r.permeances[num]/d).toFixed(2):0;
+        });
+        const data=useLog?dataRaw.map(v=>v>0?v:0.0001):dataRaw;
+
+        if(selectivityChart)selectivityChart.destroy();
+        selectivityChart=new Chart(document.getElementById("selectivityChart"),{
+          type:'bar',
+          data:{labels,datasets:[{label:`${num}/${den} Selectivity`,data,backgroundColor:"#3498db"}]},
+          options:{
+            responsive:true,maintainAspectRatio:false,
+            scales:{y:{type:useLog?'logarithmic':'linear',beginAtZero:!useLog}},
+            plugins:{barLabel:{labels:barLabels}}
+          }
+        });
       }
 
       /* ------------------------------------------------------------------ */
       /* CALCULATION                                                        */
-      const BAR_TO_CMHG = 75.006156130264;
-      function calcPermeances({ area, pressure, gases }) {
-        const p = pressure * BAR_TO_CMHG,
-          out = {};
-        for (const g of gasList) {
-          const { volume: V, time: t } = gases[g];
-          out[g] = area && t && p ? (V / (area * t * p)) * 1e6 : 0;
+      const BAR_TO_CMHG=75.006156130264;
+      function calcPermeances({area,pressure,gases}){
+        const p=pressure*BAR_TO_CMHG,out={};
+        for(const g of gasList){
+          const {volume:V,time:t}=gases[g];
+          out[g]=area&&t&&p?(V/(area*t*p))*1e6:0;
         }
         return out;
       }
 
       /* ------------------------------------------------------------------ */
       /* BUTTON ACTIONS                                                     */
-      function calculateOrSave() {
-        const sample = document.getElementById("sampleName").value.trim();
-        const area = parseFloat(document.getElementById("area").value);
-        const press = parseFloat(document.getElementById("pressure").value);
-        if (!sample || isNaN(area) || isNaN(press)) {
-          alert("Fill sample name, area and pressure!");
-          return;
-        }
+      function calculateOrSave(){
+        const sample=document.getElementById("sampleName").value.trim();
+        const label=document.getElementById("sampleLabel").value.trim();
+        const area=parseFloat(document.getElementById("area").value);
+        const press=parseFloat(document.getElementById("pressure").value);
+        if(!sample||!label||isNaN(area)||isNaN(press)){alert("Fill Sample Name, Sample Label, Area and Pressure!");return;}
 
-        const gasData = {};
-        gasList.forEach((g) => {
-          gasData[g] = {
-            volume: +document.getElementById(`vol-${g}`).value || 0,
-            time: +document.getElementById(`time-${g}`).value || 0,
-          };
+        const gasData={};
+        gasList.forEach(g=>{
+          gasData[g]={volume:+document.getElementById(`vol-${g}`).value||0,time:+document.getElementById(`time-${g}`).value||0};
         });
-        const inputs = {
-          sampleName: sample,
-          area,
-          pressure: press,
-          gases: gasData,
-        };
-        const permeances = calcPermeances(inputs);
+        const inputs={sampleName:sample,sampleLabel:label,area,pressure:press,gases:gasData};
+        const permeances=calcPermeances(inputs);
 
-        if (editId === null) {
-          storedResults.push({
-            id: nextId,
-            inputs,
-            permeances,
-            selected: true,
-          });
-          document
-            .getElementById("results-container")
-            .insertAdjacentHTML("beforeend", renderCard(storedResults.at(-1)));
+        if(editId===null){
+          storedResults.push({id:nextId,inputs,permeances,selected:true});
+          document.getElementById("results-container").insertAdjacentHTML("beforeend",renderCard(storedResults.at(-1)));
           nextId++;
-        } else {
-          const rec = storedResults.find((r) => r.id === editId);
-          Object.assign(rec, { inputs, permeances });
-          document.querySelector(
-            `.sample-result[data-id='${editId}']`
-          ).outerHTML = renderCard(rec);
+        }else{
+          const rec=storedResults.find(r=>r.id===editId);
+          Object.assign(rec,{inputs,permeances});
+          document.querySelector(`.sample-result[data-id='${editId}']`).outerHTML=renderCard(rec);
           exitEditMode();
         }
         rebuildSampleSelector();
         clearInputBoxes();
       }
 
-      function beginEdit(id) {
-        const rec = storedResults.find((r) => r.id === id);
-        if (!rec) return;
-        editId = id;
-        document.getElementById("sampleName").value = rec.inputs.sampleName;
-        document.getElementById("area").value = rec.inputs.area;
-        document.getElementById("pressure").value = rec.inputs.pressure;
-        gasList.forEach((g) => {
-          document.getElementById(`vol-${g}`).value =
-            rec.inputs.gases[g].volume;
-          document.getElementById(`time-${g}`).value = rec.inputs.gases[g].time;
+      function beginEdit(id){
+        const rec=storedResults.find(r=>r.id===id); if(!rec)return;
+        editId=id;
+        document.getElementById("sampleName").value=rec.inputs.sampleName;
+        document.getElementById("sampleLabel").value=rec.inputs.sampleLabel;
+        document.getElementById("area").value=rec.inputs.area;
+        document.getElementById("pressure").value=rec.inputs.pressure;
+        gasList.forEach(g=>{
+          document.getElementById(`vol-${g}`).value=rec.inputs.gases[g].volume;
+          document.getElementById(`time-${g}`).value=rec.inputs.gases[g].time;
         });
-        document.getElementById("calcBtn").textContent = "Save";
-        document.getElementById("calcBtn").style.background = "#27ae60";
-        document.getElementById("cancelBtn").style.display = "";
+        document.getElementById("calcBtn").textContent="Save";
+        document.getElementById("calcBtn").style.background="#27ae60";
+        document.getElementById("cancelBtn").style.display="";
       }
-
-      function exitEditMode() {
-        editId = null;
-        document.getElementById("calcBtn").textContent = "Calculate";
-        document.getElementById("calcBtn").style.background = "#e74c3c";
-        document.getElementById("cancelBtn").style.display = "none";
-      }
-
-      function cancelEdit() {
-        exitEditMode();
-        clearInputBoxes();
-      }
-
-      function clearInputBoxes() {
-        document.getElementById("sampleName").value = "";
-        document.getElementById("area").value = "";
-        document.getElementById("pressure").value = "";
-        gasList.forEach((g) => {
-          document.getElementById(`vol-${g}`).value = "";
-          document.getElementById(`time-${g}`).value = "";
+      function exitEditMode(){editId=null;document.getElementById("calcBtn").textContent="Calculate";document.getElementById("calcBtn").style.background="#e74c3c";document.getElementById("cancelBtn").style.display="none";}
+      function cancelEdit(){exitEditMode();clearInputBoxes();}
+      function clearInputBoxes(){
+        document.getElementById("sampleName").value='';
+        document.getElementById("sampleLabel").value='';
+        document.getElementById("area").value='';
+        document.getElementById("pressure").value='';
+        gasList.forEach(g=>{
+          document.getElementById(`vol-${g}`).value='';
+          document.getElementById(`time-${g}`).value='';
         });
       }
-
-      function deleteResult(id) {
-        const idx = storedResults.findIndex((r) => r.id === id);
-        if (idx > -1) {
-          storedResults.splice(idx, 1);
-          document.querySelector(`.sample-result[data-id='${id}']`)?.remove();
-        }
-        if (editId === id) {
-          exitEditMode();
-          clearInputBoxes();
-        }
+      function deleteResult(id){
+        const idx=storedResults.findIndex(r=>r.id===id);
+        if(idx>-1){storedResults.splice(idx,1);document.querySelector(`.sample-result[data-id='${id}']`)?.remove();}
+        if(editId===id){exitEditMode();clearInputBoxes();}
         rebuildSampleSelector();
       }
-
-      function clearStoredResults() {
-        storedResults.length = 0;
-        document.getElementById("results-container").innerHTML = "";
-        exitEditMode();
-        clearInputBoxes();
-        rebuildSampleSelector();
-      }
+      function clearStoredResults(){storedResults.length=0;document.getElementById("results-container").innerHTML='';exitEditMode();clearInputBoxes();rebuildSampleSelector();}
 
       /* ------------------------------------------------------------------ */
       /* SELECTOR CHANGE                                                    */
-      function selectionChanged() {
-        const selIds = [
-          ...document.getElementById("sampleSelector").selectedOptions,
-        ].map((o) => +o.value);
-        storedResults.forEach((r) => {
-          r.selected = selIds.includes(r.id);
-        });
+      function selectionChanged(){
+        const selIds=[...document.getElementById("sampleSelector").selectedOptions].map(o=>+o.value);
+        storedResults.forEach(r=>{r.selected=selIds.includes(r.id);});
         refreshCharts();
       }
 
       /* ------------------------------------------------------------------ */
       /* IMPORT / EXPORT                                                    */
-      function exportStoredResults() {
-        const blob = new Blob([JSON.stringify(storedResults, null, 2)], {
-          type: "application/json",
-        });
-        const a = document.createElement("a");
-        a.href = URL.createObjectURL(blob);
-        a.download = "stored_results.json";
-        document.body.appendChild(a);
-        a.click();
-        a.remove();
-        URL.revokeObjectURL(a.href);
+      function exportStoredResults(){
+        const blob=new Blob([JSON.stringify(storedResults,null,2)],{type:"application/json"});
+        const a=document.createElement("a"); a.href=URL.createObjectURL(blob); a.download="stored_results.json";
+        document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(a.href);
       }
-
-      function importStoredResults(e) {
-        const file = e.target.files[0];
-        if (!file) return;
-        const reader = new FileReader();
-        reader.onload = (evt) => {
-          try {
-            const arr = JSON.parse(evt.target.result);
-            arr.forEach((obj) => {
-              obj.id = nextId++;
-              obj.selected = true;
+      function importStoredResults(e){
+        const file=e.target.files[0]; if(!file)return;
+        const reader=new FileReader();
+        reader.onload=evt=>{
+          try{
+            const arr=JSON.parse(evt.target.result);
+            arr.forEach(obj=>{
+              obj.id=nextId++; obj.selected=true;
               storedResults.push(obj);
-              document
-                .getElementById("results-container")
-                .insertAdjacentHTML("beforeend", renderCard(obj));
+              document.getElementById("results-container").insertAdjacentHTML("beforeend",renderCard(obj));
             });
             rebuildSampleSelector();
-          } catch (err) {
-            alert("Import error: " + err.message);
-          }
+          }catch(err){alert("Import error: "+err.message);}
         };
-        reader.readAsText(file);
-        e.target.value = "";
+        reader.readAsText(file); e.target.value="";
       }
 
       /* ------------------------------------------------------------------ */
       /* DRAG & DROP                                                        */
-      new Sortable(document.getElementById("results-container"), {
-        animation: 150,
-        ghostClass: "sortable-ghost",
-        onEnd: () => {
-          const order = [...document.querySelectorAll(".sample-result")].map(
-            (d) => +d.dataset.id
-          );
-          storedResults.sort(
-            (a, b) => order.indexOf(a.id) - order.indexOf(b.id)
-          );
+      new Sortable(document.getElementById("results-container"),{
+        animation:150,ghostClass:"sortable-ghost",
+        onEnd:()=>{
+          const order=[...document.querySelectorAll(".sample-result")].map(d=>+d.dataset.id);
+          storedResults.sort((a,b)=>order.indexOf(a.id)-order.indexOf(b.id));
           rebuildSampleSelector();
         },
       });
