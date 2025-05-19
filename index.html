@@ -529,7 +529,9 @@
           pointRadius: 4,
           tension: 0,
         }));
+
         if (kineticsChart) kineticsChart.destroy();
+
         kineticsChart = new Chart(document.getElementById("kineticsChart"), {
           type: "scatter",
           data: { datasets },
@@ -546,14 +548,22 @@
                 min: 2.5,
                 max: 4,
                 title: { display: true, text: "Gas kinetic diameter [Å]" },
+                // Explicitly define where we want the ticks to appear
                 ticks: {
-                  values: gasXVals,
-                  callback: (v) => {
-                    const idx = gasXVals.findIndex(
-                      (x) => Math.abs(x - v) < 0.05
-                    );
-                    return idx > -1 ? gasOrder[idx] : "";
+                  autoSkip: false,
+                  // Force ticks at exact gas diameter positions
+                  callback: function (value, index, values) {
+                    // Return empty string for auto-generated ticks
+                    if (!gasXVals.includes(value)) return "";
+
+                    // Return the gas name for our explicitly set tick values
+                    return gasOrder[gasXVals.indexOf(value)];
                   },
+                },
+                afterBuildTicks: function (scale) {
+                  // Replace any auto-generated ticks with our own custom ticks at gas diameters
+                  scale.ticks = gasXVals.map((val) => ({ value: val }));
+                  return;
                 },
                 grid: { drawTicks: false },
               },
