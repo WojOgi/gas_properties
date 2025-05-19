@@ -137,25 +137,30 @@
         flex-wrap: wrap;
         justify-content: space-around;
         align-items: flex-start;
+        gap: 20px;
       }
-      .knudsen-table {
+      .tiny-table {
         background: #fdfdfd;
         border: 1px solid #ccc;
         border-radius: 5px;
         padding: 10px;
         margin-top: 10px;
         font-size: 14px;
-        max-width: 200px;
+        max-width: 220px;
       }
-      .knudsen-table table {
+      .tiny-table table {
         width: 100%;
         border-collapse: collapse;
       }
-      .knudsen-table td {
+      .tiny-table td {
         padding: 4px;
       }
-      .knudsen-table td:last-child {
+      .tiny-table td:last-child {
         text-align: right;
+      }
+      .toggle-box {
+        margin: 10px auto 0;
+        text-align: center;
       }
     </style>
   </head>
@@ -214,10 +219,20 @@
         <option>CH4</option>
         <option>CO2</option>
       </select>
+      <div class="toggle-box">
+        <label
+          ><input
+            type="checkbox"
+            id="permeanceLogToggle"
+            onchange="updatePermeanceChart()"
+          />
+          Log&nbsp;scale</label
+        >
+      </div>
       <canvas id="permeanceChart"></canvas>
     </div>
 
-    <!-- selectivity chart + table -->
+    <!-- selectivity chart + tables -->
     <div class="section">
       <h2>Selectivity Comparison</h2>
       <select id="selectivityType" onchange="updateSelectivityChart()">
@@ -231,10 +246,23 @@
         <option>He/H2</option>
         <option>H2/O2</option>
       </select>
+      <div class="toggle-box">
+        <label
+          ><input
+            type="checkbox"
+            id="selectivityLogToggle"
+            onchange="updateSelectivityChart()"
+          />
+          Log&nbsp;scale</label
+        >
+      </div>
+
       <div class="chart-and-table">
         <canvas id="selectivityChart"></canvas>
-        <div class="knudsen-table">
-          <strong>Knudsen Selectivities</strong>
+
+        <!-- Knudsen -->
+        <div class="tiny-table">
+          <strong>Knudsen&nbsp;Selectivities</strong>
           <table>
             <tr>
               <td>H₂/N₂</td>
@@ -271,6 +299,49 @@
             <tr>
               <td>H₂/O₂</td>
               <td>3.98</td>
+            </tr>
+          </table>
+        </div>
+
+        <!-- PDMS -->
+        <div class="tiny-table">
+          <strong>PDMS&nbsp;Selectivities</strong>
+          <table>
+            <tr>
+              <td>H₂/N₂</td>
+              <td>≈ 2.3</td>
+            </tr>
+            <tr>
+              <td>O₂/N₂</td>
+              <td>≈ 2.1</td>
+            </tr>
+            <tr>
+              <td>CO₂/CH₄</td>
+              <td>≈ 3.4</td>
+            </tr>
+            <tr>
+              <td>CO₂/N₂</td>
+              <td>≈ 11–12</td>
+            </tr>
+            <tr>
+              <td>H₂/CH₄</td>
+              <td>≈ 0.68</td>
+            </tr>
+            <tr>
+              <td>H₂/CO₂</td>
+              <td>≈ 0.20</td>
+            </tr>
+            <tr>
+              <td>N₂/CH₄</td>
+              <td>≈ 0.30</td>
+            </tr>
+            <tr>
+              <td>He/H₂</td>
+              <td>≈ 0.54</td>
+            </tr>
+            <tr>
+              <td>H₂/O₂</td>
+              <td>≈ 1.1</td>
             </tr>
           </table>
         </div>
@@ -354,10 +425,15 @@
 
       function updatePermeanceChart() {
         const gas = document.getElementById("permeanceGas").value;
+        const useLog = document.getElementById("permeanceLogToggle").checked;
         const labels = filteredResults().map((r) => r.inputs.sampleName);
-        const data = filteredResults().map(
+        const dataRaw = filteredResults().map(
           (r) => +r.permeances[gas].toFixed(2)
         );
+        const data = useLog
+          ? dataRaw.map((v) => (v > 0 ? v : 0.0001))
+          : dataRaw;
+
         if (permeanceChart) permeanceChart.destroy();
         permeanceChart = new Chart(document.getElementById("permeanceChart"), {
           type: "bar",
@@ -374,7 +450,12 @@
           options: {
             responsive: true,
             maintainAspectRatio: false,
-            scales: { y: { beginAtZero: true } },
+            scales: {
+              y: {
+                type: useLog ? "logarithmic" : "linear",
+                beginAtZero: !useLog,
+              },
+            },
           },
         });
       }
@@ -383,11 +464,16 @@
         const [num, den] = document
           .getElementById("selectivityType")
           .value.split("/");
+        const useLog = document.getElementById("selectivityLogToggle").checked;
         const labels = filteredResults().map((r) => r.inputs.sampleName);
-        const data = filteredResults().map((r) => {
+        const dataRaw = filteredResults().map((r) => {
           const d = r.permeances[den];
           return d ? +(r.permeances[num] / d).toFixed(2) : 0;
         });
+        const data = useLog
+          ? dataRaw.map((v) => (v > 0 ? v : 0.0001))
+          : dataRaw;
+
         if (selectivityChart) selectivityChart.destroy();
         selectivityChart = new Chart(
           document.getElementById("selectivityChart"),
@@ -406,7 +492,12 @@
             options: {
               responsive: true,
               maintainAspectRatio: false,
-              scales: { y: { beginAtZero: true } },
+              scales: {
+                y: {
+                  type: useLog ? "logarithmic" : "linear",
+                  beginAtZero: !useLog,
+                },
+              },
             },
           }
         );
@@ -604,7 +695,7 @@
       /* ------------------------------------------------------------------ */
       /* INIT                                                               */
       createGasInputs();
-      rebuildSampleSelector(); // also draws empty charts
+      rebuildSampleSelector(); // draws empty charts initially
     </script>
   </body>
 </html>
