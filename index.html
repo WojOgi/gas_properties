@@ -504,7 +504,6 @@
       /* ------------------------------------------------------------------ */
       /* CHART HELPER                                                       */
       const selectedResults = () => storedResults.filter((r) => r.selected);
-
       function refreshCharts() {
         updateKineticsChart();
         updatePermeanceChart();
@@ -527,9 +526,7 @@
           pointRadius: 4,
           tension: 0,
         }));
-
         if (kineticsChart) kineticsChart.destroy();
-
         kineticsChart = new Chart(document.getElementById("kineticsChart"), {
           type: "scatter",
           data: { datasets },
@@ -548,12 +545,12 @@
                 title: { display: true, text: "Gas kinetic diameter [Å]" },
                 ticks: {
                   autoSkip: false,
-                  callback: function (value) {
-                    if (!gasXVals.includes(value)) return "";
-                    return gasOrder[gasXVals.indexOf(value)];
-                  },
+                  callback: (value) =>
+                    gasXVals.includes(value)
+                      ? gasOrder[gasXVals.indexOf(value)]
+                      : "",
                 },
-                afterBuildTicks: function (scale) {
+                afterBuildTicks: (scale) => {
                   scale.ticks = gasXVals.map((val) => ({ value: val }));
                 },
                 grid: { drawTicks: false },
@@ -577,14 +574,10 @@
         const barLabels = res.map((r) => r.inputs.sampleLabel);
         const raw = res.map((r) => +r.permeances[gas].toFixed(2));
         const data = useLog ? raw.map((v) => (v > 0 ? v : 0.0001)) : raw;
-
         if (permeanceChart) permeanceChart.destroy();
-
-        // choose scale settings based on toggle
         const yScale = useLog
-          ? { type: "logarithmic", min: 0.01 } // always start at 0.01 GPU
+          ? { type: "logarithmic", min: 0.01 }
           : { type: "linear", beginAtZero: true };
-
         permeanceChart = new Chart(document.getElementById("permeanceChart"), {
           type: "bar",
           data: {
@@ -620,8 +613,12 @@
           return d ? +(r.permeances[num] / d).toFixed(2) : 0;
         });
         const data = useLog ? raw.map((v) => (v > 0 ? v : 0.0001)) : raw;
-
         if (selectivityChart) selectivityChart.destroy();
+
+        // NEW: fixed lower limit 0.1 on log scale
+        const yScale = useLog
+          ? { type: "logarithmic", min: 0.1 } // <- always start at 0.1
+          : { type: "linear", beginAtZero: true };
 
         selectivityChart = new Chart(
           document.getElementById("selectivityChart"),
@@ -640,12 +637,7 @@
             options: {
               responsive: true,
               maintainAspectRatio: false,
-              scales: {
-                y: {
-                  type: useLog ? "logarithmic" : "linear",
-                  beginAtZero: !useLog,
-                },
-              },
+              scales: { y: yScale },
               plugins: { barLabel: { labels: barLabels } },
             },
           }
@@ -710,7 +702,6 @@
           ).outerHTML = renderCard(rec);
           exitEditMode();
         }
-
         rebuildSampleSelector();
         clearInputBoxes();
       }
@@ -732,7 +723,6 @@
         document.getElementById("calcBtn").style.background = "#27ae60";
         document.getElementById("cancelBtn").style.display = "";
       }
-
       function exitEditMode() {
         editId = null;
         document.getElementById("calcBtn").textContent = "Calculate";
