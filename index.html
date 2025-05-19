@@ -386,7 +386,7 @@
         CH4: 3.8,
       };
       const gasOrder = ["He", "H2", "CO2", "O2", "N2", "CH4"];
-      const gasXVals = gasOrder.map((g) => gasDiameters[g]); // [2.6, 2.89, ...]
+      const gasXVals = gasOrder.map((g) => gasDiameters[g]);
       const colours = [
         "#1f77b4",
         "#ff7f0e",
@@ -410,7 +410,6 @@
 
       /* ------------------------------------------------------------------ */
       /* CHART.JS PLUGINS                                                   */
-      // bold labels above bars
       const barLabelPlugin = {
         id: "barLabel",
         afterDatasetsDraw(chart, args, opt) {
@@ -431,7 +430,6 @@
           });
         },
       };
-      // bold Sample Label at last point of kinetics line
       const kineticsLabelPlugin = {
         id: "kineticsLabel",
         afterDatasetsDraw(chart, args, opt) {
@@ -548,22 +546,15 @@
                 min: 2.5,
                 max: 4,
                 title: { display: true, text: "Gas kinetic diameter [Å]" },
-                // Explicitly define where we want the ticks to appear
                 ticks: {
                   autoSkip: false,
-                  // Force ticks at exact gas diameter positions
-                  callback: function (value, index, values) {
-                    // Return empty string for auto-generated ticks
+                  callback: function (value) {
                     if (!gasXVals.includes(value)) return "";
-
-                    // Return the gas name for our explicitly set tick values
                     return gasOrder[gasXVals.indexOf(value)];
                   },
                 },
                 afterBuildTicks: function (scale) {
-                  // Replace any auto-generated ticks with our own custom ticks at gas diameters
                   scale.ticks = gasXVals.map((val) => ({ value: val }));
-                  return;
                 },
                 grid: { drawTicks: false },
               },
@@ -588,6 +579,12 @@
         const data = useLog ? raw.map((v) => (v > 0 ? v : 0.0001)) : raw;
 
         if (permeanceChart) permeanceChart.destroy();
+
+        // choose scale settings based on toggle
+        const yScale = useLog
+          ? { type: "logarithmic", min: 0.01 } // always start at 0.01 GPU
+          : { type: "linear", beginAtZero: true };
+
         permeanceChart = new Chart(document.getElementById("permeanceChart"), {
           type: "bar",
           data: {
@@ -603,12 +600,7 @@
           options: {
             responsive: true,
             maintainAspectRatio: false,
-            scales: {
-              y: {
-                type: useLog ? "logarithmic" : "linear",
-                beginAtZero: !useLog,
-              },
-            },
+            scales: { y: yScale },
             plugins: { barLabel: { labels: barLabels } },
           },
         });
@@ -630,6 +622,7 @@
         const data = useLog ? raw.map((v) => (v > 0 ? v : 0.0001)) : raw;
 
         if (selectivityChart) selectivityChart.destroy();
+
         selectivityChart = new Chart(
           document.getElementById("selectivityChart"),
           {
